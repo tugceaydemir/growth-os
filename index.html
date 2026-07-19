@@ -63,7 +63,7 @@ p.note{color:var(--muted);font-size:13.5px;max-width:70ch;margin:2px 0 14px}
 .stat.acc{border-left:3px solid var(--accent)}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-th{Text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:last-child td{border-bottom:none}
 td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -113,13 +113,22 @@ label.f{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin
 .small{font-size:12.5px;color:var(--muted)}
 .divider{border:none;border-top:1px solid var(--line);margin:26px 0}
 .empty{color:var(--muted);font-size:13.5px;font-style:italic;padding:14px;border:1px dashed var(--line);border-radius:10px;text-align:center}
-.kbd{font-family:var(--mono);font-size:12px;background:var(--surface2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
-.tag{font-size:11px;font-family:var(--mono);color:var(--muted)}
 ul.tight{margin:6px 0;padding-left:20px}
 ul.tight li{margin-bottom:5px}
-.savebar{display:flex;gap:10px;align-items:center;margin-top:14px}
+.savebar{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
 .saved{font-size:12.5px;color:var(--good);opacity:0;transition:opacity .3s}
 .saved.show{opacity:1}
+details.grp{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:10px;padding:0 14px}
+details.grp summary{cursor:pointer;font-weight:600;font-size:13.5px;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px}
+details.grp summary::before{content:"▸";color:var(--accent);transition:transform .2s}
+details.grp[open] summary::before{transform:rotate(90deg)}
+details.grp .inner{padding:2px 0 14px}
+.loop{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--surface);padding:14px}
+.loop h4{margin:0 0 4px;font-size:14px}
+.loop p{margin:0 0 6px;font-size:13px;color:var(--muted)}
+.loop .m{font-size:12.5px}
+.loop .m b{color:var(--accent-ink)}
+.cadence td:first-child{font-weight:600;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -128,9 +137,10 @@ ul.tight li{margin-bottom:5px}
 <header class="top">
   <div class="eyebrow">Çizgi Studio · Growth</div>
   <h1>Kami Growth OS</h1>
-  <p class="sub">Tuğçe'nin kişisel kokpiti: funnel sayıları, deney günlüğü, rapor disiplini ve öğrenme yol haritası. Veriler bu tarayıcıda saklanır (localStorage) — düzenli olarak yedek indir, başka cihazda yedekten yükle.</p>
+  <p class="sub">Tuğçe'nin kişisel kokpiti. Veriler bu tarayıcıda saklanır (localStorage) — düzenli olarak Excel raporu ve JSON yedek indir; başka cihaza geçerken JSON yedeğini yükle.</p>
   <div class="savebar" style="margin-top:10px">
-    <button class="btn ghost sm" id="db-export">Verileri indir (JSON yedek)</button>
+    <button class="btn sm" id="db-export">Verileri indir (Excel)</button>
+    <button class="btn ghost sm" id="db-json">JSON yedek</button>
     <button class="btn ghost sm" id="db-import">Yedekten yükle</button>
     <input type="file" id="db-file" accept=".json,application/json" style="display:none">
     <span class="saved" id="db-saved">Tamam ✓</span>
@@ -139,6 +149,8 @@ ul.tight li{margin-bottom:5px}
 
 <nav class="tabs" id="tabs">
   <button data-t="kokpit" class="on">Kokpit</button>
+  <button data-t="gunluk">Günlük</button>
+  <button data-t="takvim">Metrik Takvimi</button>
   <button data-t="kpi">KPI Sözlüğü</button>
   <button data-t="deney">Deney Günlüğü</button>
   <button data-t="rapor">Rapor Ritmi</button>
@@ -150,21 +162,69 @@ ul.tight li{margin-bottom:5px}
 
 <!-- ============ KOKPIT ============ -->
 <section class="tab on" id="t-kokpit">
-  <h2>Haftalık funnel kokpiti</h2>
-  <p class="note">Her pazartesi geçen haftanın sayılarını gir; dönüşüm oranları ve birim ekonomi otomatik hesaplanır. Kaynaklar: harcama → TikTok Ads/AppLovin, install → mağaza konsolları + MMP, aktivasyon/retention → Firebase-GA4, gelir → Adapty + AdMob/MAX.</p>
+  <h2>Kami'nin dört gelir döngüsü</h2>
+  <p class="note">Pipeline bu dört döngü üzerine kurulu. Reklam kullanıcıyı içeri atar; bu döngüler geliri ve tutundurmayı üretir. Haftalık formda her döngünün nabzını giriyorsun.</p>
+  <div class="grid g4">
+    <div class="loop"><h4>📖 Okuyucu döngüsü</h4><p>Reklam → install → ilk bölüm → kilitli bölüm → token/abonelik. <b>Ana gelir motoru.</b></p><div class="m">İzle: aktivasyon %, paywall'a çarpan %, <b>token harcayan %</b>, abone dönüşümü</div></div>
+    <div class="loop"><h4>💬 AI chat döngüsü</h4><p>Karakterle mesajlaşma; abone değilse token yakar. Hem gelir hem bağlılık üretir.</p><div class="m">İzle: <b>AI chat kullanan %</b>, chat→token dönüşümü, chat kullananın D7 farkı</div></div>
+    <div class="loop"><h4>✍️ Yazar döngüsü</h4><p>Kitap yazma → içerik envanteri büyür → okuyucuya bedava içerik → LTV↑. SA yazar kampanyalarının hedefi.</p><div class="m">İzle: <b>yeni yazar/hafta</b>, yayınlanan eser, UGC okunma payı</div></div>
+    <div class="loop"><h4>🔁 Sosyal döngüsü</h4><p>Tokensiz paylaşım → alışkanlık + topluluk → churn↓, organik davet. Gelir üretmez, geliri korur.</p><div class="m">İzle: <b>sosyalde paylaşan %</b>, sosyal aktiflerin retention farkı</div></div>
+  </div>
 
-  <div class="row" style="margin-bottom:14px">
-    <div><label class="f">Hafta başlangıcı</label><input type="date" id="wk-date"></div>
-    <div><label class="f">Harcama ($)</label><input type="number" id="in-spend" min="0" step="0.01"></div>
-    <div><label class="f">Install</label><input type="number" id="in-install" min="0"></div>
-    <div><label class="f">Aktivasyon (ilk bölüm okundu)</label><input type="number" id="in-activation" min="0"></div>
+  <h2 style="margin-top:34px">Haftalık giriş</h2>
+  <p class="note">Her pazartesi geçen haftanın sayıları. Kaynaklar: harcama → TikTok/AppLovin panelleri; install/atribüsyon → Branch; davranış → GA4/admin panel; gelir → Adapty (abonelik+token) + MAX (reklam).</p>
+
+  <div class="row" style="margin-bottom:10px">
+    <div style="max-width:200px"><label class="f">Hafta başlangıcı</label><input type="date" id="wk-date"></div>
   </div>
-  <div class="row" style="margin-bottom:14px">
-    <div><label class="f">D1 dönen kullanıcı</label><input type="number" id="in-d1" min="0"></div>
-    <div><label class="f">D7 dönen kullanıcı</label><input type="number" id="in-d7" min="0"></div>
-    <div><label class="f">İlk kez ödeyen</label><input type="number" id="in-payer" min="0"></div>
-    <div><label class="f">Toplam gelir ($, IAP+reklam)</label><input type="number" id="in-rev" min="0" step="0.01"></div>
-  </div>
+
+  <details class="grp" open><summary>Çekirdek funnel</summary><div class="inner">
+    <div class="row">
+      <div><label class="f">Harcama ($)</label><input type="number" id="in-spend" min="0" step="0.01"></div>
+      <div><label class="f">Install</label><input type="number" id="in-install" min="0"></div>
+      <div><label class="f">Aktivasyon (ilk bölüm)</label><input type="number" id="in-activation" min="0"></div>
+      <div><label class="f">D1 dönen</label><input type="number" id="in-d1" min="0"></div>
+      <div><label class="f">D7 dönen</label><input type="number" id="in-d7" min="0"></div>
+      <div><label class="f">İlk kez ödeyen</label><input type="number" id="in-payer" min="0"></div>
+    </div>
+  </div></details>
+
+  <details class="grp" open><summary>Gelir kırılımı ($)</summary><div class="inner">
+    <div class="row">
+      <div><label class="f">Abonelik geliri</label><input type="number" id="in-subRev" min="0" step="0.01"></div>
+      <div><label class="f">Token/coin geliri</label><input type="number" id="in-coinRev" min="0" step="0.01"></div>
+      <div><label class="f">Reklam geliri (MAX)</label><input type="number" id="in-adRev" min="0" step="0.01"></div>
+    </div>
+  </div></details>
+
+  <details class="grp"><summary>Ürün döngüleri (haftalık aktif kullanıcı içinden)</summary><div class="inner">
+    <div class="row">
+      <div><label class="f">Token harcayan</label><input type="number" id="in-tokenUsers" min="0"></div>
+      <div><label class="f">AI chat kullanan</label><input type="number" id="in-aiUsers" min="0"></div>
+      <div><label class="f">Sosyalde paylaşan</label><input type="number" id="in-socialUsers" min="0"></div>
+      <div><label class="f">Yeni yazar</label><input type="number" id="in-writers" min="0"></div>
+      <div><label class="f">Haftalık aktif (WAU)</label><input type="number" id="in-wau" min="0"></div>
+    </div>
+  </div></details>
+
+  <details class="grp"><summary>Segment soruları (haftalık takip)</summary><div class="inner">
+    <div class="row">
+      <div><label class="f">Organik install</label><input type="number" id="in-orgInstall" min="0"></div>
+      <div><label class="f">Organik kullanıcı geliri ($)</label><input type="number" id="in-orgRev" min="0" step="0.01"></div>
+      <div><label class="f">Paid kullanıcı geliri ($)</label><input type="number" id="in-paidRev" min="0" step="0.01"></div>
+      <div><label class="f">İlk ödemeye medyan gün (TTFP)</label><input type="number" id="in-ttfp" min="0" step="0.1"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div><label class="f">TR install</label><input type="number" id="in-trI" min="0"></div>
+      <div><label class="f">TR gelir ($)</label><input type="number" id="in-trR" min="0" step="0.01"></div>
+      <div><label class="f">SA install</label><input type="number" id="in-saI" min="0"></div>
+      <div><label class="f">SA gelir ($)</label><input type="number" id="in-saR" min="0" step="0.01"></div>
+      <div><label class="f">DE/EU install</label><input type="number" id="in-deI" min="0"></div>
+      <div><label class="f">DE/EU gelir ($)</label><input type="number" id="in-deR" min="0" step="0.01"></div>
+    </div>
+    <p class="small" style="margin-top:8px">Kaynak: Branch'te media source = organic/paid kırılımı + ülke filtresi; TTFP için GA4/BigQuery (first_open → ilk purchase medyanı).</p>
+  </div></details>
+
   <div class="savebar">
     <button class="btn" id="wk-save">Haftayı kaydet</button>
     <span class="saved" id="wk-saved">Kaydedildi ✓</span>
@@ -176,17 +236,134 @@ ul.tight li{margin-bottom:5px}
   <h3>Birim ekonomi</h3>
   <div class="grid g4">
     <div class="card stat acc"><div class="lbl">CPI</div><div class="val" id="m-cpi">—</div><div class="hint">harcama / install</div></div>
-    <div class="card stat acc"><div class="lbl">ARPU (haftalık)</div><div class="val" id="m-arpu">—</div><div class="hint">gelir / install</div></div>
+    <div class="card stat acc"><div class="lbl">ARPU (haftalık)</div><div class="val" id="m-arpu">—</div><div class="hint">toplam gelir / install</div></div>
     <div class="card stat acc"><div class="lbl">Payer dönüşümü</div><div class="val" id="m-payerconv">—</div><div class="hint">ödeyen / install</div></div>
-    <div class="card stat acc"><div class="lbl">ROAS (hafta içi)</div><div class="val" id="m-roas">—</div><div class="hint">gelir / harcama</div></div>
+    <div class="card stat acc"><div class="lbl">ROAS (hafta içi)</div><div class="val" id="m-roas">—</div><div class="hint">toplam gelir / harcama</div></div>
+  </div>
+  <div class="grid g4" style="margin-top:12px">
+    <div class="card stat"><div class="lbl">Org. ARPU vs Paid ARPU</div><div class="val" id="m-orgvspaid" style="font-size:19px">—</div><div class="hint">organik mi paid mi daha çok harcıyor?</div></div>
+    <div class="card stat"><div class="lbl">Gelir karması</div><div class="val" id="m-mix" style="font-size:19px">—</div><div class="hint">abonelik / token / reklam %</div></div>
+    <div class="card stat"><div class="lbl">Token harcayan %</div><div class="val" id="m-tokenpct" style="font-size:19px">—</div><div class="hint">token harcayan / WAU</div></div>
+    <div class="card stat"><div class="lbl">AI chat %</div><div class="val" id="m-aipct" style="font-size:19px">—</div><div class="hint">AI chat kullanan / WAU</div></div>
   </div>
 
-  <h3>Geçmiş haftalar</h3>
-  <div class="tblwrap"><table id="wk-table">
-    <thead><tr><th>Hafta</th><th class="num">Harcama</th><th class="num">Install</th><th class="num">CPI</th><th class="num">Aktiv. %</th><th class="num">D1 %</th><th class="num">D7 %</th><th class="num">Payer %</th><th class="num">ROAS</th><th></th></tr></thead>
+  <h3>Geçmiş haftalar — funnel</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Hafta</th><th class="num">Harcama</th><th class="num">Install</th><th class="num">CPI</th><th class="num">Aktiv.%</th><th class="num">D1%</th><th class="num">D7%</th><th class="num">Payer%</th><th class="num">Gelir</th><th class="num">ROAS</th><th></th></tr></thead>
     <tbody id="wk-tbody"></tbody>
   </table></div>
+
+  <h3>Geçmiş haftalar — segment cevapları</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Hafta</th><th class="num">Org ARPU</th><th class="num">Paid ARPU</th><th class="num">TR ARPU</th><th class="num">SA ARPU</th><th class="num">DE ARPU</th><th class="num">TTFP (gün)</th><th class="num">Token%</th><th class="num">AI%</th><th class="num">Sosyal%</th><th class="num">Yeni yazar</th></tr></thead>
+    <tbody id="seg-tbody"></tbody>
+  </table></div>
   <p class="small" style="margin-top:8px">Trend okuma kuralı: tek haftaya karar bağlama; en az 2–3 haftalık yön + kohort verisiyle birlikte yorumla.</p>
+</section>
+
+<!-- ============ GUNLUK ============ -->
+<section class="tab" id="t-gunluk">
+  <h2>Günlük nabız — 15 dakika</h2>
+  <p class="note">Her sabah aynı saatte, aynı sırayla. Amaç karar değil, anomaliyi erken yakalamak. Aşağıdaki hızlı girişle günün özetini kaydet; detaylı analiz haftalığa kalır.</p>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="row">
+      <div style="max-width:170px"><label class="f">Tarih</label><input type="date" id="dy-date"></div>
+      <div><label class="f">Harcama ($)</label><input type="number" id="dy-spend" min="0" step="0.01"></div>
+      <div><label class="f">Install</label><input type="number" id="dy-install" min="0"></div>
+      <div><label class="f">Gelir ($)</label><input type="number" id="dy-rev" min="0" step="0.01"></div>
+      <div><label class="f">Yeni abone</label><input type="number" id="dy-subs" min="0"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div><label class="f">Günün notu / anomali</label><input type="text" id="dy-note" placeholder="TikTok TR CPI %30 arttı — kreatif yorgunluğu şüphesi"></div>
+    </div>
+    <div class="savebar"><button class="btn" id="dy-save">Günü kaydet</button><span class="saved" id="dy-saved">Kaydedildi ✓</span></div>
+  </div>
+
+  <div class="tblwrap"><table>
+    <thead><tr><th>Tarih</th><th class="num">Harcama</th><th class="num">Install</th><th class="num">CPI</th><th class="num">Gelir</th><th class="num">ROAS</th><th class="num">Abone</th><th>Not</th><th></th></tr></thead>
+    <tbody id="dy-tbody"></tbody>
+  </table></div>
+
+  <h3>Günlük kontrol listesi (panellerde bakılacaklar)</h3>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="margin-top:0">Reklam tarafı</h3>
+      <ul class="tight">
+        <li><b>Spend, install, CPI</b> — kanal × ülke (TikTok, AppLovin ayrı ayrı)</li>
+        <li><b>IPM</b> — 1000 gösterimde install; kreatif sağlığının en hızlı sinyali</li>
+        <li><b>CTR &amp; CPM</b> — CPM sıçradıysa açık artırma/kitle problemi</li>
+        <li><b>Hook rate (3 sn izlenme)</b> — yeni kreatiflerde ilk gün bak; %60 altı ölü</li>
+        <li><b>Frequency</b> — 3+ ise kitle doyuyor, kreatif rotasyonu vakti</li>
+        <li><b>ROAS D0</b> — dünkü harcamanın aynı gün dönüşü</li>
+        <li><b>Öldürme kuralı uygula</b> — $50 harcayıp IPM&lt;1 olan kreatifi kapat</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Ürün + sağlık tarafı</h3>
+      <ul class="tight">
+        <li><b>Gelir</b> — Adapty (abonelik+token) + MAX (reklam); dünle karşılaştır</li>
+        <li><b>Yeni abone &amp; iptal</b> — Adapty; iptal sıçraması varsa nedenine in</li>
+        <li><b>Tracking sağlığı</b> — Branch install ≈ mağaza install (±%20 dışıysa alarm)</li>
+        <li><b>Crash/ANR</b> — mağaza konsollarında hızlı bakış; reklam açıkken crash = para yakar</li>
+        <li><b>Yorum/puan</b> — mağazada 1 yıldız dalgası erken uyarıdır</li>
+        <li><b>Anomali notu yaz</b> — yukarıdaki forma tek cümle; hafızan rapor değil, kayıt</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METRIK TAKVIMI ============ -->
+<section class="tab" id="t-takvim">
+  <h2>Metrik takvimi — hangi sayıya ne sıklıkta bakılır</h2>
+  <p class="note">Her metriğin doğal bir olgunlaşma hızı var: harcama anlık bozulur, LTV ayda anlam kazanır. Yanlış sıklıkta bakmak ya panik ya körlük üretir.</p>
+
+  <h3>🕘 Günlük (sabah, 15 dk)</h3>
+  <div class="tblwrap"><table class="cadence">
+    <thead><tr><th>Metrik</th><th>Kaynak</th><th>Neden günlük</th></tr></thead>
+    <tbody>
+      <tr><td>Spend / Install / CPI (kanal×ülke)</td><td>TikTok, AppLovin + Branch</td><td>Bütçe yanlış yere akıyorsa 24 saatte fark etmelisin</td></tr>
+      <tr><td>IPM + CTR + CPM</td><td>Reklam panelleri</td><td>Kreatif ölümü ve açık artırma şoku aynı gün görünür</td></tr>
+      <tr><td>Hook rate (3 sn), frequency</td><td>TikTok panel</td><td>Yeni kreatifin kaderi ilk 24–48 saatte belli olur</td></tr>
+      <tr><td>ROAS D0</td><td>Branch + Adapty</td><td>Dünkü harcamanın ilk geri dönüş sinyali</td></tr>
+      <tr><td>Gelir (abonelik + token + reklam)</td><td>Adapty + MAX</td><td>Ödeme kırılması/fiyat hatası aynı gün yakalanmalı</td></tr>
+      <tr><td>Yeni abone / iptal</td><td>Adapty</td><td>İptal dalgası ürün veya faturalama arızası demek</td></tr>
+      <tr><td>Tracking sağlığı (Branch ≈ mağaza)</td><td>Branch + konsollar</td><td>Kopuk atribüsyonla geçen her gün kör harcamadır</td></tr>
+      <tr><td>Crash / ANR / 1 yıldız dalgası</td><td>Konsollar</td><td>Reklam açıkken teknik arıza parayı doğrudan yakar</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>📅 Haftalık (pazartesi, derin bakış)</h3>
+  <div class="tblwrap"><table class="cadence">
+    <thead><tr><th>Metrik</th><th>Kaynak</th><th>Neden haftalık</th></tr></thead>
+    <tbody>
+      <tr><td>Funnel: install → aktivasyon → D1 → D7 → payer</td><td>Branch + GA4 + Adapty</td><td>Günlük gürültü haftada temizlenir; Kokpit'e gir</td></tr>
+      <tr><td>Kreatif leaderboard (IPM + D7 ROAS sırası)</td><td>Panel + Branch</td><td>Öldür/ölçekle kararları haftalık ritimde verilir</td></tr>
+      <tr><td>Segment: organik vs paid ARPU</td><td>Branch media source</td><td>Paid kaliten organiğe yaklaşıyor mu?</td></tr>
+      <tr><td>Segment: ülke ARPU vs CPI (TR/SA/DE)</td><td>Branch + Adapty</td><td>Bütçenin ülke dağılım kararı</td></tr>
+      <tr><td>Segment: TTFP (ilk ödemeye medyan gün)</td><td>GA4/BigQuery</td><td>Teklif zamanlaması (D1 indirim vs D3 push) buna bağlı</td></tr>
+      <tr><td>Ürün döngüleri: token %, AI chat %, sosyal %, yeni yazar</td><td>Admin panel / GA4</td><td>Kreatif temasıyla uygulama davranışını eşleştirirsin ("AI kreatif geldi, AI chat'i buldu mu?")</td></tr>
+      <tr><td>Mağaza CVR (sayfa → install)</td><td>Konsollar</td><td>Paid trafiğin mağazada ölme oranı; ASO testi sinyali</td></tr>
+      <tr><td>Erken churn sinyali (ilk hafta iptalleri)</td><td>Adapty</td><td>Kohort bozulmasını aylık rapordan önce gösterir</td></tr>
+      <tr><td>Kampanya kıyası: yazar vs okuyucu mesajı (SA)</td><td>Branch kampanya kırılımı</td><td>D7 retention + payer conversion ile kazananı seç</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>🗓️ Aylık (ayın ilk haftası, strateji)</h3>
+  <div class="tblwrap"><table class="cadence">
+    <thead><tr><th>Metrik</th><th>Kaynak</th><th>Neden aylık</th></tr></thead>
+    <tbody>
+      <tr><td>LTV / CAC (ülke bazlı) + payback süresi</td><td>Adapty + Branch + modelin</td><td>Ölçekleme kararının tek gerçek hakemi</td></tr>
+      <tr><td>Kohort ROAS olgunlaşması (D30/D60)</td><td>Branch + Adapty</td><td>"Kazandı" dediğin kreatif/ülke gerçekten kazandı mı</td></tr>
+      <tr><td>Abonelik yenileme kohortları (1.→2. ay kırılımı)</td><td>Adapty</td><td>LTV'yi en hızlı büyüten kaldıraç; churn hangi ayda</td></tr>
+      <tr><td>Token ekonomisi: ARPPU, whale payı (top %5), token başına gelir</td><td>Adapty + admin panel</td><td>Coin dengesi bozulursa gelir sessizce erir</td></tr>
+      <tr><td>Reklam ARPDAU / eCPM</td><td>MAX</td><td>Ödemeyenlerden gelen gelirin sağlığı</td></tr>
+      <tr><td>Ülke P&amp;L + gelecek ay bütçe önerisi</td><td>Hepsinin sentezi</td><td>Yönetim raporunun omurgası</td></tr>
+      <tr><td>İçerik envanteri: aktif yazar, yeni eser, UGC okunma payı</td><td>Admin panel</td><td>Yazar döngüsü içerik maliyetini düşürüyor mu</td></tr>
+      <tr><td>ASO: keyword sıralamaları + CVR trendi</td><td>Konsollar / ASO aracı</td><td>Organik musluğun aylık bakımı</td></tr>
+      <tr><td>Rakip taraması (kreatif + fiyat + mağaza)</td><td>TikTok Creative Center, Ad Library</td><td>ReelShort/Dramabox ne test ediyor</td></tr>
+    </tbody>
+  </table></div>
 </section>
 
 <!-- ============ KPI ============ -->
@@ -198,11 +375,13 @@ ul.tight li{margin-bottom:5px}
   <div class="tblwrap"><table>
     <thead><tr><th>Metrik</th><th>Tanım</th><th>Kaynak</th><th>Referans aralık</th></tr></thead>
     <tbody>
-      <tr><td><b>CPI</b></td><td>Install başına maliyet</td><td>TikTok Ads / AppLovin ÷ MMP install</td><td class="num">TR $0.10–0.40 · SA $0.50–1.5 · DE/US $1–3</td></tr>
+      <tr><td><b>CPI</b></td><td>Install başına maliyet</td><td>TikTok Ads / AppLovin ÷ Branch install</td><td class="num">TR $0.10–0.40 · SA $0.50–1.5 · DE/US $1–3</td></tr>
       <tr><td><b>CTR</b></td><td>Gösterim → tık</td><td>Reklam paneli</td><td class="num">TikTok video &gt;%1 iyi, &lt;%0.5 kreatif zayıf</td></tr>
-      <tr><td><b>IPM</b></td><td>1000 gösterim başına install — kreatif kalitesinin en hızlı sinyali</td><td>Reklam paneli + MMP</td><td class="num">&gt;5 güçlü · &lt;1 kreatifi öldür</td></tr>
+      <tr><td><b>IPM</b></td><td>1000 gösterim başına install — kreatif kalitesinin en hızlı sinyali</td><td>Reklam paneli + Branch</td><td class="num">&gt;5 güçlü · &lt;1 kreatifi öldür</td></tr>
+      <tr><td><b>Hook rate (3 sn)</b></td><td>İlk 3 saniyeyi izleyenlerin oranı — Jay Raavi'nin "altın metriği"</td><td>TikTok panel</td><td class="num">%75–80 format valide · &lt;%60 hook ölü</td></tr>
+      <tr><td><b>Frequency</b></td><td>Kullanıcı başına ortalama gösterim</td><td>Reklam paneli</td><td class="num">&gt;3 → kitle doyumu, rotasyon/kitle genişletme</td></tr>
       <tr><td><b>CVR (mağaza)</b></td><td>Mağaza sayfası görüntüleme → install</td><td>App Store Connect / Play Console</td><td class="num">%15–35; düşükse ASO/ekran görüntüsü işi</td></tr>
-      <tr><td><b>Organik oran</b></td><td>Organik install / toplam install</td><td>MMP (organic vs non-organic)</td><td class="num">Paid ölçerken organik uplift'i de izle (%20–40 sağlıklı)</td></tr>
+      <tr><td><b>Organik oran</b></td><td>Organik install / toplam install</td><td>Branch (organic vs non-organic)</td><td class="num">Paid ölçerken organik uplift'i de izle (%20–40 sağlıklı)</td></tr>
     </tbody>
   </table></div>
 
@@ -214,29 +393,43 @@ ul.tight li{margin-bottom:5px}
       <tr><td><b>D1 / D7 / D30 retention</b></td><td>Install'dan 1/7/30 gün sonra dönen kullanıcı</td><td>GA4 / Adapty kohort</td><td class="num">İçerik app: D1 %30–40 · D7 %15–20 · D30 %8–12</td></tr>
       <tr><td><b>Okuma derinliği</b></td><td>İlk oturumda okunan bölüm sayısı; paywall'a kaç bölümde çarpıyor</td><td>GA4 event</td><td class="num">İlk gün 3+ bölüm okuyan → payer adayı</td></tr>
       <tr><td><b>Churn (abonelik)</b></td><td>Aylık abonelik iptal oranı</td><td>Adapty</td><td class="num">Ay1 %40–60 normal; yenileme 2. aydan sonra stabilleşmeli</td></tr>
+      <tr><td><b>Özellik retention farkı</b></td><td>AI chat / sosyal kullananların D7-D30'u vs kullanmayanlar</td><td>GA4 segment</td><td class="num">Fark büyükse o özellik onboarding'e taşınmalı — ürün argümanın</td></tr>
     </tbody>
   </table></div>
 
-  <h3>Gelir</h3>
+  <h3>Gelir &amp; token ekonomisi</h3>
   <div class="tblwrap"><table>
     <thead><tr><th>Metrik</th><th>Tanım</th><th>Kaynak</th><th>Referans aralık</th></tr></thead>
     <tbody>
-      <tr><td><b>Payer conversion</b></td><td>Install → ilk satın alma (coin veya abonelik)</td><td>Adapty + GA4</td><td class="num">%1–3 tipik; &gt;%5 çok iyi</td></tr>
-      <tr><td><b>Time-to-first-purchase</b></td><td>Install → ilk ödeme arası süre (senin sorduğun metrik)</td><td>GA4/BigQuery: first_open → first purchase delta</td><td class="num">Çoğunluk ilk 24–72 saatte öder; kuyruk uzunsa D7 push/teklif dene</td></tr>
-      <tr><td><b>ARPPU</b></td><td>Ödeyen başına gelir</td><td>Adapty</td><td class="num">Coin ağırlıklıysa whale takibi yap (top %5 gelir payı)</td></tr>
-      <tr><td><b>ROAS D0/D7/D30</b></td><td>Kohort harcamasının geri dönüşü</td><td>MMP + Adapty kohort</td><td class="num">D0 %5–15 · D7 %20–40 · hedef: D30'da payback yolu görünür olmalı</td></tr>
-      <tr><td><b>LTV (D90/D180)</b></td><td>Kohortun kümülatif geliri; LTV &gt; CAC × 1.3 olmadan ölçekleme yok</td><td>Adapty + kendi modelin</td><td class="num">D30 LTV × 2–2.5 ≈ D180 kaba tahmini</td></tr>
-      <tr><td><b>Reklam ARPDAU</b></td><td>Reklam gösteren DAU başına reklam geliri</td><td>MAX / AdMob</td><td class="num">Ödemeyenlerden gelir; rewarded video coin ile bağla</td></tr>
+      <tr><td><b>Payer conversion</b></td><td>Install → ilk satın alma (token veya abonelik)</td><td>Adapty + GA4</td><td class="num">%1–3 tipik; &gt;%5 çok iyi</td></tr>
+      <tr><td><b>TTFP (time-to-first-purchase)</b></td><td>Install → ilk ödeme arası medyan süre</td><td>GA4/BigQuery: first_open → purchase delta</td><td class="num">Çoğunluk 24–72 saatte öder; kuyruk uzunsa D3-D7 teklifi dene</td></tr>
+      <tr><td><b>ARPPU</b></td><td>Ödeyen başına gelir</td><td>Adapty</td><td class="num">Token ağırlıklıysa whale takibi yap (top %5 gelir payı)</td></tr>
+      <tr><td><b>Abonelik vs token dengesi</b></td><td>Gelir karması; abonelik öngörülebilirlik, token tavan verir</td><td>Adapty</td><td class="num">Karma izle; tek kalem %80'i geçerse kırılganlık</td></tr>
+      <tr><td><b>Chat→token dönüşümü</b></td><td>AI chat kullanan abonesizlerin token satın alma oranı</td><td>Admin panel + Adapty</td><td class="num">AI chat'in gelir katkısının doğrudan ölçüsü</td></tr>
+      <tr><td><b>ROAS D0/D7/D30</b></td><td>Kohort harcamasının geri dönüşü</td><td>Branch + Adapty kohort</td><td class="num">D0 %5–15 · D7 %20–40 · D30'da payback yolu görünmeli</td></tr>
+      <tr><td><b>LTV (D90/D180)</b></td><td>Kohortun kümülatif geliri; LTV &gt; CAC × 1.3 olmadan ölçek yok</td><td>Adapty + kendi modelin</td><td class="num">D30 LTV × 2–2.5 ≈ D180 kaba tahmini</td></tr>
+      <tr><td><b>Reklam ARPDAU</b></td><td>Reklam gösteren DAU başına reklam geliri</td><td>MAX / AdMob</td><td class="num">Ödemeyenlerden gelir; rewarded video'yu token ile bağla</td></tr>
     </tbody>
   </table></div>
 
-  <h3>Segment soruları (her ay cevabı bilinmeli)</h3>
+  <h3>İçerik &amp; topluluk (Kami'ye özgü)</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Metrik</th><th>Tanım</th><th>Kaynak</th><th>Neden önemli</th></tr></thead>
+    <tbody>
+      <tr><td><b>Yeni yazar / hafta</b></td><td>İlk eserini yayınlayan kullanıcı</td><td>Admin panel</td><td>SA yazar kampanyalarının doğrudan KPI'ı; içerik arzı</td></tr>
+      <tr><td><b>UGC okunma payı</b></td><td>Toplam okumada kullanıcı eserlerinin payı</td><td>Admin panel</td><td>İçerik maliyeti düşer, envanter derinleşir</td></tr>
+      <tr><td><b>Sosyal paylaşan %</b></td><td>WAU içinde sosyalde paylaşım yapan</td><td>Admin panel</td><td>Tokensiz ama churn düşürücü; topluluk sağlığı</td></tr>
+      <tr><td><b>AI chat mesaj/kullanıcı</b></td><td>Chat kullananların haftalık mesaj derinliği</td><td>Admin panel</td><td>Derinlik = bağlılık = token yakışı</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Segment soruları (haftalık cevaplanır — Kokpit'teki segment formu)</h3>
   <ul class="tight">
-    <li><b>Organik mi paid mi daha çok harcıyor?</b> — MMP'de media source = organic vs paid ayrımıyla ARPU/LTV karşılaştır. Organik genelde daha yüksek LTV verir; fark küçükse paid kaliten iyi demektir.</li>
-    <li><b>Hangi ülke daha çok harcıyor?</b> — Ülke × ARPU + ülke × CPI tablosu = ülke kârlılık matrisi. DE kullanıcısı TR'den 5× harcayabilir ama CPI 8× ise TR kazanır.</li>
-    <li><b>İndirme → ilk harcama süresi?</b> — BigQuery'de first_open ile ilk purchase event'i arasındaki medyan gün. Teklif zamanlaması (D1 indirimi vs D3) buna göre kurulur.</li>
-    <li><b>Churn hangi ayda?</b> — Adapty renewal kohortları: 1.→2. ay yenileme en kritik kırılım. Oradaki iyileşme LTV'yi en hızlı büyüten kaldıraçtır.</li>
-    <li><b>Yazar mı okuyucu mu?</b> — SA testinde kampanyaları audience mesajına göre etiketle (naming convention), MMP'de kampanya bazlı D7 retention + payer conversion karşılaştır. CPI'ı değil, D7 ROAS'ı kazanan belirler.</li>
+    <li><b>Organik mi paid mi daha çok harcıyor?</b> — Branch'te media source = organic vs paid ayrımıyla ARPU/LTV karşılaştır. Organik genelde daha yüksek LTV verir; fark küçükse paid kaliten iyi demektir.</li>
+    <li><b>Hangi ülke daha çok harcıyor?</b> — Ülke × ARPU + ülke × CPI = ülke kârlılık matrisi. DE kullanıcısı TR'den 5× harcayabilir ama CPI 8× ise TR kazanır.</li>
+    <li><b>İndirme → ilk harcama süresi?</b> — BigQuery'de first_open ile ilk purchase arasındaki medyan gün. Teklif zamanlaması buna göre kurulur.</li>
+    <li><b>Churn hangi ayda?</b> — Adapty renewal kohortları: 1.→2. ay yenileme en kritik kırılım (bu aylık izlenir).</li>
+    <li><b>Yazar mı okuyucu mu?</b> — SA'da kampanyaları audience mesajına göre etiketle, Branch'te kampanya bazlı D7 retention + payer conversion karşılaştır. CPI'ı değil, D7 ROAS'ı kazanan belirler.</li>
   </ul>
 </section>
 
@@ -274,20 +467,18 @@ ul.tight li{margin-bottom:5px}
     <div class="card">
       <h3 style="margin-top:0">Günlük · 15 dk <span class="pill acc">kendine</span></h3>
       <ul class="tight">
-        <li>Kanal × ülke: harcama, install, CPI, IPM</li>
-        <li>Dünün geliri (Adapty + reklam)</li>
-        <li>Anomali var mı? (CPI ±%30, install çakılması, tracking kopması)</li>
-        <li>Koşan kreatif testlerinin erken sinyali</li>
+        <li>Günlük sekmesindeki kontrol listesi</li>
+        <li>Hızlı girişle günün kaydı (spend, install, gelir, not)</li>
+        <li>Anomali varsa aynı gün aksiyon; yoksa kapat</li>
       </ul>
-      <p class="small">Amaç karar değil, nabız. Anomali yoksa 15 dakikada kapat.</p>
     </div>
     <div class="card">
       <h3 style="margin-top:0">Haftalık · Pazartesi <span class="pill acc">ekibe</span></h3>
       <ul class="tight">
-        <li>Kokpit funnel'ı (bu sitedeki tablo)</li>
+        <li>Kokpit funnel'ı + segment formu doldur</li>
         <li>Kreatif leaderboard: IPM + D7 ROAS sırası</li>
-        <li>Kohort güncellemesi: geçen haftaların D1/D7'si nasıl olgunlaştı</li>
-        <li><b>Product'a 3 içgörü</b> — Berke'yle standup gündemi (ör. "AI kreatifle gelenler AI chat'i bulamıyor")</li>
+        <li>Kohort güncellemesi: geçen haftalar nasıl olgunlaştı</li>
+        <li><b>Product'a 3 içgörü</b> — Berke'yle standup gündemi</li>
         <li>Bu hafta başlayacak testler + beklenen karar tarihi</li>
       </ul>
     </div>
@@ -296,6 +487,7 @@ ul.tight li{margin-bottom:5px}
       <ul class="tight">
         <li>LTV / CAC ülke bazlı; payback süresi</li>
         <li>Churn &amp; yenileme kohortları (Adapty)</li>
+        <li>Token ekonomisi + whale analizi</li>
         <li>Ülke P&amp;L: hangi pazar ölçeklenir, hangisi bekler</li>
         <li>Gelir köprüsü: geçen ay → bu ay değişimin nedenleri</li>
         <li>Gelecek ay bütçe önerisi + gerekçesi</li>
@@ -308,7 +500,9 @@ ul.tight li{margin-bottom:5px}
 HARCAMA: $X (geçen hafta $Y, %Z değişim)
 INSTALL: X · CPI $X · en iyi kanal/ülke: X
 FUNNEL: install → aktivasyon %X → D1 %X → D7 %X → payer %X
-GELİR: $X (IAP $X + reklam $X) · haftalık ROAS %X
+GELİR: $X (abonelik $X + token $X + reklam $X) · haftalık ROAS %X
+SEGMENT: org ARPU $X vs paid $X · TR/SA/DE ARPU $X/$X/$X · TTFP X gün
+DÖNGÜLER: token %X · AI chat %X · sosyal %X · yeni yazar X
 KREATİF: kazanan [ad] (IPM X, D7 ROAS %X) · ölen [ad] (neden)
 KOHORT: [2-3 hafta önceki kohortlar nasıl olgunlaştı]
 PRODUCT'A 3 İÇGÖRÜ:
@@ -326,7 +520,8 @@ RİSK: [tracking, bütçe, mevsimsellik...]</pre></div>
       <tr><td>Install var, aktivasyon çakıldı</td><td>Onboarding kırıldı veya yanlış kitle</td><td>Sürüm notları + kampanya değişiklikleri; Berke ile crash/funnel bak</td></tr>
       <tr><td>ROAS düştü, retention aynı</td><td>Fiyat/paywall veya ödeme hatası</td><td>Adapty conversion'ı sürüm bazlı karşılaştır</td></tr>
       <tr><td>Organik install sıçradı</td><td>Featuring, viral içerik veya bot</td><td>Ülke dağılımı + mağaza kaynak raporu; TikTok organik görüntülenme</td></tr>
-      <tr><td>Panel ile mağaza sayıları tutmuyor</td><td>Atribüsyon/SKAN farkı — normaldir</td><td>Tek doğruluk kaynağı belirle (MMP) ve hep ondan raporla</td></tr>
+      <tr><td>Panel ile mağaza sayıları tutmuyor</td><td>Atribüsyon/SKAN farkı — normaldir</td><td>Tek doğruluk kaynağı belirle (Branch) ve hep ondan raporla</td></tr>
+      <tr><td>Token geliri düşüyor, abonelik sabit</td><td>Coin fiyat/paket değişikliği veya whale kaybı</td><td>Adapty'de top harcayanların davranışı; paket dönüşümleri</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -347,7 +542,7 @@ RİSK: [tracking, bütçe, mevsimsellik...]</pre></div>
   <h3>Haftalık öğrenme ritmi önerisi</h3>
   <ul class="tight">
     <li><b>Haftada 2 saat derin çalışma:</b> tek konu, elinde gerçek Kami verisiyle (ör. bu hafta sadece kohort analizi).</li>
-    <li><b>Haftada 30 dk sektör okuma:</b> Mobile Dev Memo (Eric Seufert), GrowthHackers, App Growth Summit kayıtları, r/androiddev-r/iosgaming UA tartışmaları.</li>
+    <li><b>Haftada 30 dk sektör okuma:</b> Mobile Dev Memo (Eric Seufert), GrowthHackers, App Growth Summit kayıtları.</li>
     <li><b>Ayda 1 vaka analizi:</b> ReelShort, Dramabox, Pocket FM, Episode gibi bir içerik uygulamasının mağaza sayfasını, reklam kütüphanesini (TikTok Creative Center, Meta Ad Library) ve fiyatlamasını tersine mühendislikle çöz, notunu Notlar sekmesine yaz.</li>
     <li><b>Her deneyden 1 yazılı öğrenim:</b> Deney Günlüğü'ne karar yazılmadan test kapanmaz.</li>
   </ul>
@@ -467,7 +662,7 @@ var KEY="kami-growth-os-v1";
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
 var db=load();
-db.weeks=db.weeks||[]; db.exps=db.exps||[]; db.notes=db.notes||[]; db.plan=db.plan||{}; db.skills=db.skills||{};
+db.weeks=db.weeks||[]; db.days=db.days||[]; db.exps=db.exps||[]; db.notes=db.notes||[]; db.plan=db.plan||{}; db.skills=db.skills||{};
 
 // ---- tabs
 var tabs=document.getElementById("tabs");
@@ -486,38 +681,50 @@ function pct(a,b){return b>0?(100*a/b):NaN}
 function money(n){return isFinite(n)?"$"+n.toLocaleString("en-US",{maximumFractionDigits:2}):"—"}
 function esc(s){var d=document.createElement("div");d.textContent=s||"";return d.innerHTML}
 function flash(id){var el=document.getElementById(id);el.classList.add("show");setTimeout(function(){el.classList.remove("show")},1800)}
+function num(v){var n=parseFloat(v);return isFinite(n)?n:0}
+function totalRev(w){ if(w.subRev!=null||w.coinRev!=null||w.adRev!=null){return num(w.subRev)+num(w.coinRev)+num(w.adRev)} return num(w.rev) }
 
 // ---- kokpit
-var F=["spend","install","activation","d1","d7","payer","rev"];
+var WF=["spend","install","activation","d1","d7","payer","subRev","coinRev","adRev","tokenUsers","aiUsers","socialUsers","writers","wau","orgInstall","orgRev","paidRev","ttfp","trI","trR","saI","saR","deI","deR"];
 function readInputs(){
   var o={date:document.getElementById("wk-date").value};
-  F.forEach(function(k){o[k]=parseFloat(document.getElementById("in-"+k).value)||0});
+  WF.forEach(function(k){var el=document.getElementById("in-"+k); o[k]=el.value===""?null:num(el.value)});
   return o;
 }
 function renderFunnel(){
   var o=readInputs();
+  var rev=totalRev(o);
   var stages=[
-    ["Install",o.install,o.install],
-    ["Aktivasyon (ilk bölüm)",o.activation,o.install],
-    ["D1 retention",o.d1,o.install],
-    ["D7 retention",o.d7,o.install],
-    ["İlk ödeme (payer)",o.payer,o.install]
+    ["Install",num(o.install)],
+    ["Aktivasyon (ilk bölüm)",num(o.activation)],
+    ["D1 retention",num(o.d1)],
+    ["D7 retention",num(o.d7)],
+    ["İlk ödeme (payer)",num(o.payer)]
   ];
   var el=document.getElementById("funnel"); el.innerHTML="";
   stages.forEach(function(s){
-    var p=pct(s[1],s[2]);
-    var w=o.install>0?Math.max(1,100*s[1]/o.install):0;
+    var p=pct(s[1],num(o.install));
+    var w=num(o.install)>0?Math.max(1,100*s[1]/num(o.install)):0;
     var div=document.createElement("div"); div.className="fstage";
     div.innerHTML='<div class="name">'+s[0]+'</div><div class="fbar"><i style="width:'+w+'%"></i></div>'+
       '<div class="pct">'+fmt(s[1],0)+'<small>'+(isFinite(p)?fmt(p,1)+"%":"—")+"</small></div>";
     el.appendChild(div);
   });
-  document.getElementById("m-cpi").textContent = o.install>0? money(o.spend/o.install):"—";
-  document.getElementById("m-arpu").textContent = o.install>0? money(o.rev/o.install):"—";
-  document.getElementById("m-payerconv").textContent = o.install>0? fmt(pct(o.payer,o.install),2)+"%":"—";
-  document.getElementById("m-roas").textContent = o.spend>0? fmt(100*o.rev/o.spend,0)+"%":"—";
+  document.getElementById("m-cpi").textContent = num(o.install)>0? money(num(o.spend)/num(o.install)):"—";
+  document.getElementById("m-arpu").textContent = num(o.install)>0? money(rev/num(o.install)):"—";
+  document.getElementById("m-payerconv").textContent = num(o.install)>0? fmt(pct(num(o.payer),num(o.install)),2)+"%":"—";
+  document.getElementById("m-roas").textContent = num(o.spend)>0? fmt(100*rev/num(o.spend),0)+"%":"—";
+  // segment kartları
+  var paidInstall = num(o.install)-num(o.orgInstall);
+  var orgArpu = num(o.orgInstall)>0? num(o.orgRev)/num(o.orgInstall):NaN;
+  var paidArpu = paidInstall>0? num(o.paidRev)/paidInstall:NaN;
+  document.getElementById("m-orgvspaid").textContent = (isFinite(orgArpu)||isFinite(paidArpu))? (money(orgArpu)+" / "+money(paidArpu)):"—";
+  var mix = rev>0? [fmt(100*num(o.subRev)/rev,0),fmt(100*num(o.coinRev)/rev,0),fmt(100*num(o.adRev)/rev,0)].join(" / ")+"%":"—";
+  document.getElementById("m-mix").textContent = mix;
+  document.getElementById("m-tokenpct").textContent = num(o.wau)>0? fmt(pct(num(o.tokenUsers),num(o.wau)),1)+"%":"—";
+  document.getElementById("m-aipct").textContent = num(o.wau)>0? fmt(pct(num(o.aiUsers),num(o.wau)),1)+"%":"—";
 }
-F.forEach(function(k){document.getElementById("in-"+k).addEventListener("input",renderFunnel)});
+WF.forEach(function(k){document.getElementById("in-"+k).addEventListener("input",renderFunnel)});
 document.getElementById("wk-save").addEventListener("click",function(){
   var o=readInputs();
   if(!o.date){alert("Hafta başlangıç tarihini seç.");return}
@@ -528,26 +735,85 @@ document.getElementById("wk-save").addEventListener("click",function(){
 });
 function renderWeeks(){
   var tb=document.getElementById("wk-tbody"); tb.innerHTML="";
-  if(!db.weeks.length){tb.innerHTML='<tr><td colspan="10" style="color:var(--muted);font-style:italic">Henüz kayıtlı hafta yok — yukarıdan ilk haftanı gir.</td></tr>';return}
+  var sb=document.getElementById("seg-tbody"); sb.innerHTML="";
+  if(!db.weeks.length){
+    tb.innerHTML='<tr><td colspan="11" style="color:var(--muted);font-style:italic">Henüz kayıtlı hafta yok — yukarıdan ilk haftanı gir.</td></tr>';
+    sb.innerHTML='<tr><td colspan="11" style="color:var(--muted);font-style:italic">Segment verileri haftalık formdaki "Segment soruları" bölümünden gelir.</td></tr>';
+    return;
+  }
   db.weeks.forEach(function(w,idx){
+    var rev=totalRev(w);
     var tr=document.createElement("tr");
     tr.innerHTML="<td>"+esc(w.date)+"</td>"+
-      '<td class="num">'+money(w.spend)+"</td>"+
-      '<td class="num">'+fmt(w.install,0)+"</td>"+
-      '<td class="num">'+(w.install>0?money(w.spend/w.install):"—")+"</td>"+
-      '<td class="num">'+(isFinite(pct(w.activation,w.install))?fmt(pct(w.activation,w.install),1)+"%":"—")+"</td>"+
-      '<td class="num">'+(isFinite(pct(w.d1,w.install))?fmt(pct(w.d1,w.install),1)+"%":"—")+"</td>"+
-      '<td class="num">'+(isFinite(pct(w.d7,w.install))?fmt(pct(w.d7,w.install),1)+"%":"—")+"</td>"+
-      '<td class="num">'+(isFinite(pct(w.payer,w.install))?fmt(pct(w.payer,w.install),2)+"%":"—")+"</td>"+
-      '<td class="num">'+(w.spend>0?fmt(100*w.rev/w.spend,0)+"%":"—")+"</td>"+
+      '<td class="num">'+money(num(w.spend))+"</td>"+
+      '<td class="num">'+fmt(num(w.install),0)+"</td>"+
+      '<td class="num">'+(num(w.install)>0?money(num(w.spend)/num(w.install)):"—")+"</td>"+
+      '<td class="num">'+(isFinite(pct(num(w.activation),num(w.install)))?fmt(pct(num(w.activation),num(w.install)),1)+"%":"—")+"</td>"+
+      '<td class="num">'+(isFinite(pct(num(w.d1),num(w.install)))?fmt(pct(num(w.d1),num(w.install)),1)+"%":"—")+"</td>"+
+      '<td class="num">'+(isFinite(pct(num(w.d7),num(w.install)))?fmt(pct(num(w.d7),num(w.install)),1)+"%":"—")+"</td>"+
+      '<td class="num">'+(isFinite(pct(num(w.payer),num(w.install)))?fmt(pct(num(w.payer),num(w.install)),2)+"%":"—")+"</td>"+
+      '<td class="num">'+money(rev)+"</td>"+
+      '<td class="num">'+(num(w.spend)>0?fmt(100*rev/num(w.spend),0)+"%":"—")+"</td>"+
       '<td><button class="btn danger sm" data-i="'+idx+'">Sil</button></td>';
     tb.appendChild(tr);
+    // segment satırı
+    var paidI=num(w.install)-num(w.orgInstall);
+    var oa=num(w.orgInstall)>0?num(w.orgRev)/num(w.orgInstall):NaN;
+    var pa=paidI>0?num(w.paidRev)/paidI:NaN;
+    var ta=num(w.trI)>0?num(w.trR)/num(w.trI):NaN;
+    var sa=num(w.saI)>0?num(w.saR)/num(w.saI):NaN;
+    var da=num(w.deI)>0?num(w.deR)/num(w.deI):NaN;
+    var sr=document.createElement("tr");
+    sr.innerHTML="<td>"+esc(w.date)+"</td>"+
+      '<td class="num">'+money(oa)+"</td><td class=\"num\">"+money(pa)+"</td>"+
+      '<td class="num">'+money(ta)+"</td><td class=\"num\">"+money(sa)+"</td><td class=\"num\">"+money(da)+"</td>"+
+      '<td class="num">'+(w.ttfp!=null&&isFinite(w.ttfp)?fmt(num(w.ttfp),1):"—")+"</td>"+
+      '<td class="num">'+(isFinite(pct(num(w.tokenUsers),num(w.wau)))?fmt(pct(num(w.tokenUsers),num(w.wau)),1)+"%":"—")+"</td>"+
+      '<td class="num">'+(isFinite(pct(num(w.aiUsers),num(w.wau)))?fmt(pct(num(w.aiUsers),num(w.wau)),1)+"%":"—")+"</td>"+
+      '<td class="num">'+(isFinite(pct(num(w.socialUsers),num(w.wau)))?fmt(pct(num(w.socialUsers),num(w.wau)),1)+"%":"—")+"</td>"+
+      '<td class="num">'+fmt(num(w.writers),0)+"</td>";
+    sb.appendChild(sr);
   });
 }
 document.getElementById("wk-tbody").addEventListener("click",function(e){
   var b=e.target.closest("button[data-i]"); if(!b)return;
   if(!confirm("Bu haftayı sil?"))return;
   db.weeks.splice(+b.dataset.i,1); save(db); renderWeeks();
+});
+
+// ---- günlük
+document.getElementById("dy-save").addEventListener("click",function(){
+  var d=document.getElementById("dy-date").value;
+  if(!d){alert("Tarih seç.");return}
+  var o={date:d, spend:num(document.getElementById("dy-spend").value), install:num(document.getElementById("dy-install").value),
+    rev:num(document.getElementById("dy-rev").value), subs:num(document.getElementById("dy-subs").value),
+    note:document.getElementById("dy-note").value.trim()};
+  var i=db.days.findIndex(function(x){return x.date===d});
+  if(i>=0)db.days[i]=o; else db.days.push(o);
+  db.days.sort(function(a,b){return a.date<b.date?1:-1});
+  save(db); renderDays(); flash("dy-saved");
+});
+function renderDays(){
+  var tb=document.getElementById("dy-tbody"); tb.innerHTML="";
+  if(!db.days.length){tb.innerHTML='<tr><td colspan="9" style="color:var(--muted);font-style:italic">Henüz günlük kayıt yok.</td></tr>';return}
+  db.days.forEach(function(d,idx){
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td>"+esc(d.date)+"</td>"+
+      '<td class="num">'+money(d.spend)+"</td>"+
+      '<td class="num">'+fmt(d.install,0)+"</td>"+
+      '<td class="num">'+(d.install>0?money(d.spend/d.install):"—")+"</td>"+
+      '<td class="num">'+money(d.rev)+"</td>"+
+      '<td class="num">'+(d.spend>0?fmt(100*d.rev/d.spend,0)+"%":"—")+"</td>"+
+      '<td class="num">'+fmt(d.subs,0)+"</td>"+
+      "<td>"+esc(d.note)+"</td>"+
+      '<td><button class="btn danger sm" data-i="'+idx+'">Sil</button></td>';
+    tb.appendChild(tr);
+  });
+}
+document.getElementById("dy-tbody").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-i]"); if(!b)return;
+  if(!confirm("Bu günü sil?"))return;
+  db.days.splice(+b.dataset.i,1); save(db); renderDays();
 });
 
 // ---- deneyler
@@ -589,18 +855,18 @@ document.getElementById("ex-list").addEventListener("click",function(e){
     x.st=order[(order.indexOf(x.st)+1)%order.length];save(db);renderExps()}
 });
 
-// ---- plan (checkboxes)
+// ---- plan
 var PLAN=[
  {ph:"Faz 0 · Gün 0–30",meta:"Ölçüm altyapısı — \"tek doğruluk kaynağı\" kur",items:[
   ["p1","Branch'i (MMP) uçtan uca doğrula","Branch SDK kurulu, TikTok SAN bağlı, Adapty→Branch S2S akıyor — kalan iş kurulum değil doğrulama: Liveview'de gerçek bir satın alma testi + çift gelir sayımı kontrolü (cihaz ve Adapty aynı anda göndermesin). AppLovin'i de Branch'e bağla."],
-  ["p2","Event taksonomisini Berke ile sabitle","first_open, onboarding_done, chapter_read (index'li), paywall_view, purchase, subscribe, ai_chat_open. Bir kez doğru kur, bir daha dokunma."],
-  ["p3","Adapty kohortlarını ülke + kaynak bazlı ayır","Abonelik/coin gelirini media source ve ülkeye kırabilir hale gel."],
-  ["p4","GA4 → BigQuery bağlantısını aç","Time-to-first-purchase, okuma derinliği gibi özel sorular sadece ham event'le cevaplanır."],
-  ["p5","Baseline raporu çıkar","Bugünkü funnel: install→aktivasyon→D1→D7→payer. Bu sayılar olmadan hiçbir testin 'kazandı' denemez."],
+  ["p2","Event taksonomisini Berke ile sabitle","first_open, onboarding_done, chapter_read (index'li), paywall_view, token_spend, purchase, subscribe, ai_chat_open, ai_chat_message, social_post, story_publish (yazar). Bir kez doğru kur, bir daha dokunma."],
+  ["p3","Adapty kohortlarını ülke + kaynak bazlı ayır","Abonelik/token gelirini media source ve ülkeye kırabilir hale gel."],
+  ["p4","GA4 → BigQuery bağlantısını aç","TTFP, okuma derinliği, özellik retention farkı gibi özel sorular sadece ham event'le cevaplanır."],
+  ["p5","Baseline raporu çıkar","Bugünkü funnel: install→aktivasyon→D1→D7→payer + döngü metrikleri (token %, AI chat %, sosyal %, yazar). Bu sayılar olmadan hiçbir teste 'kazandı' denemez."],
   ["p6","Kreatif naming convention belirle","ülke_kitle_tema_format_v# (ör. SA_yazar_aichat_ugc_v3). Analiz kabiliyetinin yarısı isimlendirmedir."]]},
  {ph:"Faz 1 · Gün 30–60",meta:"Test motoru — haftalık ritimle öğren",items:[
   ["p7","Haftalık kreatif test ritmi kur","Her hafta 4–6 yeni kreatif; öldürme kuralı önceden yazılı (ör. $50 harcamada IPM<1 → kapat)."],
-  ["p8","SA testi: yazar-mesajı vs okuyucu-mesajı","Karar metriği CPI değil D7 retention + payer conversion. 2 hafta koştur, kazananı yaz."],
+  ["p8","SA testi: yazar-mesajı vs okuyucu-mesajı","Karar metriği CPI değil D7 retention + payer conversion. 2 hafta koştur, kazananı Deney Günlüğü'ne yaz."],
   ["p9","TR'de derinleş: tema testleri","AI chat, romantizm, drama klipleri... Tema × funnel davranışı eşleştir (senin 'AI kreatif geldi ama kalmadı' analizi)."],
   ["p10","Haftalık product-feedback döngüsünü resmileştir","Pazartesi raporundaki '3 içgörü' Berke'nin backlog'una girmeli; takip et."],
   ["p11","Mağaza CVR testine başla","İlk ekran görüntüsü + ikon testi (Play'de native A/B, iOS'ta PPO). Paid trafiğin yarısı mağazada ölüyorsa reklam optimizasyonu boşa gider."],
@@ -608,7 +874,7 @@ var PLAN=[
  {ph:"Faz 2 · Gün 60–90",meta:"Ölçek — kazanana yığıl, kaybedeni kapat",items:[
   ["p13","Ülke kârlılık matrisi ile bütçe dağıt","CPI × LTV(D30 projeksiyonu) tablosu; payback <6 ay olan ülkeye ölçek, olmayana bekleme."],
   ["p14","AppLovin'i ikinci kanal olarak aç","TikTok kreatif kazananlarını playable/banner formatına uyarla; tek kanala bağımlılığı kır."],
-  ["p15","Paywall & fiyat testi (Adapty)","Kazanan kohortlarda teklif zamanlaması: time-to-first-purchase verisine göre D1 indirim vs D3 push."],
+  ["p15","Paywall & fiyat testi (Adapty)","Kazanan kohortlarda teklif zamanlaması: TTFP verisine göre D1 indirim vs D3 push."],
   ["p16","LTV modelini yaz","Basit yeter: D7 gelir çarpanı + churn eğrisi. Excel'de başla, doğrulukça iyileştir."],
   ["p17","İlk aylık yönetim raporunu sun","LTV/CAC, ülke P&L, sonraki çeyrek bütçe önerisi — 'gelir pozitife ne zaman döner' sorusuna tarih ver."]]}
 ];
@@ -633,11 +899,11 @@ document.getElementById("plan").addEventListener("change",function(e){
 
 // ---- skills
 var SKILLS=[
- ["s1","Atribüsyon & MMP","SKAN 4, Privacy Sandbox, MMP mantığı (last-click sınırları, view-through). Kaynak: AppsFlyer/Adjust akademileri (ücretsiz sertifika), Eric Seufert — Mobile Dev Memo."],
+ ["s1","Atribüsyon & MMP","SKAN 4, Privacy Sandbox, Branch mantığı (last-click sınırları, view-through). Kaynak: Branch/AppsFlyer akademileri (ücretsiz sertifika), Eric Seufert — Mobile Dev Memo."],
  ["s2","Kohort analizi & LTV modelleme","Retention eğrisi uydurma, D7→D180 projeksiyon, payback hesabı. Kaynak: Adapty blog + kendi Kami verinle Excel'de model; 'Lifetime value' — Seufert makale serisi."],
  ["s3","SQL / BigQuery","GA4 export şeması, first_open→purchase delta sorguları, okuma derinliği kohortları. Kaynak: GA4 BigQuery resmi örnekleri; Mode SQL Tutorial."],
  ["s4","Kreatif analizi","Hook rate (ilk 3 sn izlenme), hold rate, IPM okuma; UGC vs stüdyo; ReelShort formülü (cliffhanger ilk 5 sn). Kaynak: TikTok Creative Center'da rakip taraması — haftalık alışkanlık."],
- ["s5","Paywall & monetizasyon tasarımı","Coin ekonomisi, abonelik vs coin dengesi, teklif zamanlaması, fiyat lokalizasyonu (SA/TR/DE farklı fiyat algısı). Kaynak: Adapty case study'leri, RevenueCat 'State of Subscription Apps' raporu."],
+ ["s5","Paywall & monetizasyon tasarımı","Token ekonomisi, abonelik vs token dengesi, teklif zamanlaması, fiyat lokalizasyonu (SA/TR/DE farklı fiyat algısı). Kaynak: Adapty case study'leri, RevenueCat 'State of Subscription Apps' raporu."],
  ["s6","ASO","Anahtar kelime + görsel CVR optimizasyonu; TR/AR/EN ayrı meta. Kaynak: mevcut ASO stratejin (App Store notların) + AppTweak/Sensor Tower blogları."],
  ["s7","İstatistiksel test okuryazarlığı","Örneklem büyüklüğü, erken durdurma hatası, novelty effect. 'Kazandı' demeden önce fark gerçek mi? Kaynak: Evan Miller'ın A/B test hesaplayıcıları + 'Trustworthy Online Controlled Experiments' (Kohavi) 1-2 bölüm."],
  ["s8","Reklam platform derinliği","TikTok: kampanya yapısı, CBO, spark ads; AppLovin: playable, bidding. Kaynak: platformların kendi sertifika programları (TikTok Academy, ücretsiz)."],
@@ -682,8 +948,62 @@ document.getElementById("note-list").addEventListener("click",function(e){
   db.notes.splice(+b.dataset.n,1); save(db); renderNotes();
 });
 
-// ---- yedekleme (export/import)
+// ---- Excel export (SpreadsheetML .xls — Excel'de doğrudan açılır, çok sayfalı)
+function xEsc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function xCell(v){
+  if(typeof v==="number"&&isFinite(v))return '<Cell><Data ss:Type="Number">'+v+"</Data></Cell>";
+  return '<Cell><Data ss:Type="String">'+xEsc(v)+"</Data></Cell>";
+}
+function xSheet(name,headers,rows){
+  var s='<Worksheet ss:Name="'+xEsc(name)+'"><Table>';
+  s+="<Row>"+headers.map(function(h){return xCell(h)}).join("")+"</Row>";
+  rows.forEach(function(r){s+="<Row>"+r.map(xCell).join("")+"</Row>"});
+  return s+"</Table></Worksheet>";
+}
+function r2(n){return isFinite(n)?Math.round(n*100)/100:""}
 document.getElementById("db-export").addEventListener("click",function(){
+  var wkRows=db.weeks.map(function(w){
+    var rev=totalRev(w), paidI=num(w.install)-num(w.orgInstall);
+    return [w.date,num(w.spend),num(w.install),r2(num(w.install)>0?num(w.spend)/num(w.install):NaN),
+      num(w.activation),r2(pct(num(w.activation),num(w.install))),num(w.d1),r2(pct(num(w.d1),num(w.install))),
+      num(w.d7),r2(pct(num(w.d7),num(w.install))),num(w.payer),r2(pct(num(w.payer),num(w.install))),
+      num(w.subRev),num(w.coinRev),num(w.adRev),r2(rev),r2(num(w.spend)>0?100*rev/num(w.spend):NaN),
+      r2(num(w.install)>0?rev/num(w.install):NaN)];
+  });
+  var segRows=db.weeks.map(function(w){
+    var paidI=num(w.install)-num(w.orgInstall);
+    return [w.date,num(w.orgInstall),r2(num(w.orgInstall)>0?num(w.orgRev)/num(w.orgInstall):NaN),
+      paidI,r2(paidI>0?num(w.paidRev)/paidI:NaN),
+      num(w.trI),r2(num(w.trI)>0?num(w.trR)/num(w.trI):NaN),
+      num(w.saI),r2(num(w.saI)>0?num(w.saR)/num(w.saI):NaN),
+      num(w.deI),r2(num(w.deI)>0?num(w.deR)/num(w.deI):NaN),
+      num(w.ttfp),num(w.wau),num(w.tokenUsers),r2(pct(num(w.tokenUsers),num(w.wau))),
+      num(w.aiUsers),r2(pct(num(w.aiUsers),num(w.wau))),
+      num(w.socialUsers),r2(pct(num(w.socialUsers),num(w.wau))),num(w.writers)];
+  });
+  var dyRows=db.days.map(function(d){
+    return [d.date,d.spend,d.install,r2(d.install>0?d.spend/d.install:NaN),d.rev,r2(d.spend>0?100*d.rev/d.spend:NaN),d.subs,d.note];
+  });
+  var exRows=db.exps.map(function(x){var s=STM[x.st]||STM.running;return [x.d,x.t,x.ch,x.geo,s[0],x.hy,x.re,x.de]});
+  var ntRows=db.notes.map(function(n){return [n.d,n.t]});
+  var xml='<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>'+
+    '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'+
+    xSheet("Haftalik",["Hafta","Harcama $","Install","CPI $","Aktivasyon","Aktivasyon %","D1","D1 %","D7","D7 %","Payer","Payer %","Abonelik $","Token $","Reklam $","Toplam Gelir $","ROAS %","ARPU $"],wkRows)+
+    xSheet("Segment",["Hafta","Org Install","Org ARPU $","Paid Install","Paid ARPU $","TR Install","TR ARPU $","SA Install","SA ARPU $","DE Install","DE ARPU $","TTFP gün","WAU","Token kul.","Token %","AI kul.","AI %","Sosyal kul.","Sosyal %","Yeni yazar"],segRows)+
+    xSheet("Gunluk",["Tarih","Harcama $","Install","CPI $","Gelir $","ROAS %","Yeni abone","Not"],dyRows)+
+    xSheet("Deneyler",["Tarih","Başlık","Kanal","Ülke","Durum","Hipotez","Sonuç","Karar"],exRows)+
+    xSheet("Notlar",["Tarih","Not"],ntRows)+
+    "</Workbook>";
+  var blob=new Blob(["﻿"+xml],{type:"application/vnd.ms-excel"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="kami-growth-"+new Date().toISOString().slice(0,10)+".xls";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href); flash("db-saved");
+});
+
+// ---- JSON yedek + geri yükleme
+document.getElementById("db-json").addEventListener("click",function(){
   var blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
   var a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
@@ -702,14 +1022,14 @@ document.getElementById("db-file").addEventListener("change",function(e){
       var d=JSON.parse(r.result);
       if(typeof d!=="object"||d===null)throw new Error("format");
       if(!confirm("Yedekteki veriler bu tarayıcıdakilerin ÜZERİNE yazılacak. Devam?"))return;
-      d.weeks=d.weeks||[]; d.exps=d.exps||[]; d.notes=d.notes||[]; d.plan=d.plan||{}; d.skills=d.skills||{};
+      d.weeks=d.weeks||[]; d.days=d.days||[]; d.exps=d.exps||[]; d.notes=d.notes||[]; d.plan=d.plan||{}; d.skills=d.skills||{};
       db=d; save(db); location.reload();
     }catch(err){alert("Bu dosya geçerli bir yedek değil (JSON okunamadı).")}
   };
   r.readAsText(f);
 });
 
-renderFunnel(); renderWeeks(); renderExps(); renderPlan(); renderSkills(); renderNotes();
+renderFunnel(); renderWeeks(); renderDays(); renderExps(); renderPlan(); renderSkills(); renderNotes();
 })();
 </script>
 
