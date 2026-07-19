@@ -129,6 +129,10 @@ details.grp .inner{padding:2px 0 14px}
 .loop .m{font-size:12.5px}
 .loop .m b{color:var(--accent-ink)}
 .cadence td:first-child{font-weight:600;white-space:nowrap}
+small.src{display:block;font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+small.src b{color:var(--accent-ink)}
+.infobox{border:1px solid var(--accent);background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:13.5px;margin:0 0 16px;color:var(--ink)}
+.infobox b{color:var(--accent-ink)}
 </style>
 </head>
 <body>
@@ -150,6 +154,7 @@ details.grp .inner{padding:2px 0 14px}
 <nav class="tabs" id="tabs">
   <button data-t="kokpit" class="on">Kokpit</button>
   <button data-t="gunluk">Günlük</button>
+  <button data-t="reklam">Reklam Paneli</button>
   <button data-t="takvim">Metrik Takvimi</button>
   <button data-t="kpi">KPI Sözlüğü</button>
   <button data-t="deney">Deney Günlüğü</button>
@@ -172,57 +177,79 @@ details.grp .inner{padding:2px 0 14px}
   </div>
 
   <h2 style="margin-top:34px">Haftalık giriş</h2>
-  <p class="note">Her pazartesi geçen haftanın sayıları. Kaynaklar: harcama → TikTok/AppLovin panelleri; install/atribüsyon → Branch; davranış → GA4/admin panel; gelir → Adapty (abonelik+token) + MAX (reklam).</p>
+  <p class="note">Her pazartesi geçen haftanın sayıları. Her alanın altında hangi sistemden alınacağı yazıyor; detaylı "bu ne, nasıl bulurum" için aşağıdaki rehberi aç.</p>
 
-  <div class="row" style="margin-bottom:10px">
+  <details class="grp"><summary>📍 Veri kaynağı rehberi — her alan nereden alınır, ne anlama gelir</summary><div class="inner">
+    <div class="tblwrap"><table>
+      <thead><tr><th>Alan</th><th>Bu ne?</th><th>Nereden &amp; nasıl</th></tr></thead>
+      <tbody>
+        <tr><td><b>Harcama</b></td><td>Reklamda GERÇEKLEŞEN harcama. Bütçe değil! Bütçe senin koyduğun üst sınır; harcama TikTok'un gerçekten yaktığı para.</td><td><b>TikTok Ads Manager</b> → Kampanya tablosu → tarih filtresini haftaya ayarla → "Toplam maliyet / Cost" kolonu. AppLovin'de de UA kampanyan olursa ikisini topla.</td></tr>
+        <tr><td><b>Install</b></td><td>O hafta uygulamayı ilk kez indiren kullanıcı.</td><td><b>App Store Connect</b> → Analytics → "Yüklemeler/Units" + <b>Play Console</b> → İstatistikler → "Yeni kullanıcı edinme". İkisinin toplamı. (Kanal bazlı kırılım Reklam Paneli'nde.)</td></tr>
+        <tr><td><b>Aktivasyon (ilk bölüm)</b></td><td>Install edenlerden İLK BÖLÜMÜ SONUNA KADAR okuyanların sayısı. Kami'nin "aha anı" — kullanıcının değeri ilk gördüğü an. Reklamın doğru kitleyi getirip getirmediğinin en erken sinyali.</td><td><b>Google Analytics (GA4)</b> → Raporlar → Etkileşim → Etkinlikler → bölüm tamamlama event'i (adını Berke'den al; yoksa açtırın — ör. chapter_read). Pratik alternatif: <b>admin panel</b> "ilk bölümünü bitiren yeni kullanıcı".</td></tr>
+        <tr><td><b>D1 / D7 dönen</b></td><td>O hafta install edenlerden 1 gün / 7 gün sonra uygulamaya geri gelenler.</td><td><b>GA4</b> → Raporlar → Elde tutma (Retention) → kohort tablosu, D1 ve D7 kolonları. Alternatif: admin panel retention raporu.</td></tr>
+        <tr><td><b>İlk kez ödeyen</b></td><td>Hayatında ilk kez ödeme yapan kullanıcı (token VEYA abonelik). Tekrar eden ödemeler sayılmaz.</td><td><b>Adapty</b> → Analytics/Charts → "New purchases" veya "First-time customers" (hafta filtresi).</td></tr>
+        <tr><td><b>Abonelik geliri</b></td><td>O hafta abonelikten gelen brüt gelir.</td><td><b>Adapty</b> → Revenue → ürün tipi = subscription, hafta filtresi.</td></tr>
+        <tr><td><b>Token/coin geliri</b></td><td>Token paketi satışlarından gelen gelir (consumable IAP).</td><td><b>Adapty</b> → Revenue → ürün tipi = consumable/non-subscription.</td></tr>
+        <tr><td><b>Reklam geliri</b></td><td>Uygulama içi reklam gösteriminden gelen gelir (kullanıcının İZLEDİĞİ reklam — senin verdiğin reklam değil).</td><td><b>AppLovin MAX</b> → Reporting → Ad revenue, hafta toplamı.</td></tr>
+        <tr><td><b>Token harcayan / AI chat / Sosyal paylaşan / Yeni yazar</b></td><td>O hafta bölüm kilidi açan veya AI chat'te token yakan · AI chat'e mesaj atan · sosyalde gönderi paylaşan · ilk eserini yayınlayan kullanıcı sayıları.</td><td><b>Admin panel</b>. Panelde bu sayılar yoksa Berke'den rapor iste — bunlar ürün döngülerinin nabzı, GA4'te event olarak da açılabilir.</td></tr>
+        <tr><td><b>WAU</b></td><td>Haftalık aktif kullanıcı (o hafta en az 1 kez açan).</td><td><b>GA4</b> → ana sayfadaki "Active users (7 gün)" veya <b>admin panel</b> WAU. Hangisini seçersen hep onu kullan.</td></tr>
+        <tr><td><b>Organik install</b></td><td>Reklamsız gelen indirmeler (arama, sosyal, ağızdan ağıza).</td><td>Pratik hesap: <b>toplam install − TikTok'un raporladığı install</b>. (İleride Branch/MMP doğrulanınca oradan net alınır.)</td></tr>
+        <tr><td><b>Organik / Paid gelir</b></td><td>Organik gelenlerin ve reklamla gelenlerin ayrı ayrı geliri — "organik mi paid mi daha çok harcıyor" sorusunun hammaddesi.</td><td><b>Adapty</b> → attribution/kaynak filtresi (Adapty'ye attribution verisi akıyorsa). Akmıyorsa boş bırak — Faz 0'daki Branch doğrulaması bunu açacak.</td></tr>
+        <tr><td><b>TTFP</b></td><td>Install'dan ilk ödemeye geçen medyan gün. Teklif zamanlaması (D1 indirim mi D3 push mu) buna göre kurulur.</td><td><b>GA4/BigQuery</b>: first_open → ilk purchase arası medyan. Pratik başlangıç: <b>Adapty</b>'de "time to purchase" tipi grafik varsa onu kullan; yoksa aylık bakma, boş bırak.</td></tr>
+        <tr><td><b>Ülke install (TR/SA/DE)</b></td><td>Ülke bazlı indirme.</td><td><b>Play Console</b> + <b>App Store Connect</b> → ülke/bölge kırılımı raporları.</td></tr>
+        <tr><td><b>Ülke gelir (TR/SA/DE)</b></td><td>Ülke bazlı gelir — ülke kârlılık matrisi (ARPU vs CPI) bundan çıkar.</td><td><b>Adapty</b> → ülke (store country) filtresi. Reklam gelirini ülkeye kırmak istersen <b>MAX</b> → Reporting → Country.</td></tr>
+      </tbody>
+    </table></div>
+  </div></details>
+
+  <div class="row" style="margin-bottom:10px;margin-top:14px">
     <div style="max-width:200px"><label class="f">Hafta başlangıcı</label><input type="date" id="wk-date"></div>
   </div>
 
   <details class="grp" open><summary>Çekirdek funnel</summary><div class="inner">
     <div class="row">
-      <div><label class="f">Harcama ($)</label><input type="number" id="in-spend" min="0" step="0.01"></div>
-      <div><label class="f">Install</label><input type="number" id="in-install" min="0"></div>
-      <div><label class="f">Aktivasyon (ilk bölüm)</label><input type="number" id="in-activation" min="0"></div>
-      <div><label class="f">D1 dönen</label><input type="number" id="in-d1" min="0"></div>
-      <div><label class="f">D7 dönen</label><input type="number" id="in-d7" min="0"></div>
-      <div><label class="f">İlk kez ödeyen</label><input type="number" id="in-payer" min="0"></div>
+      <div><label class="f">Harcama ($)</label><input type="number" id="in-spend" min="0" step="0.01"><small class="src"><b>TikTok Ads</b> → hafta filtresi → "Toplam maliyet" (bütçe değil, gerçekleşen)</small></div>
+      <div><label class="f">Install</label><input type="number" id="in-install" min="0"><small class="src"><b>App Store + Play Console</b> haftalık indirme toplamı</small></div>
+      <div><label class="f">Aktivasyon (ilk bölüm)</label><input type="number" id="in-activation" min="0"><small class="src"><b>GA4</b> bölüm-tamamlama event'i / <b>admin panel</b> (rehbere bak)</small></div>
+      <div><label class="f">D1 dönen</label><input type="number" id="in-d1" min="0"><small class="src"><b>GA4</b> → Elde tutma → D1</small></div>
+      <div><label class="f">D7 dönen</label><input type="number" id="in-d7" min="0"><small class="src"><b>GA4</b> → Elde tutma → D7</small></div>
+      <div><label class="f">İlk kez ödeyen</label><input type="number" id="in-payer" min="0"><small class="src"><b>Adapty</b> → New purchases / first-time</small></div>
     </div>
   </div></details>
 
   <details class="grp" open><summary>Gelir kırılımı ($)</summary><div class="inner">
     <div class="row">
-      <div><label class="f">Abonelik geliri</label><input type="number" id="in-subRev" min="0" step="0.01"></div>
-      <div><label class="f">Token/coin geliri</label><input type="number" id="in-coinRev" min="0" step="0.01"></div>
-      <div><label class="f">Reklam geliri (MAX)</label><input type="number" id="in-adRev" min="0" step="0.01"></div>
+      <div><label class="f">Abonelik geliri</label><input type="number" id="in-subRev" min="0" step="0.01"><small class="src"><b>Adapty</b> → Revenue → subscription</small></div>
+      <div><label class="f">Token/coin geliri</label><input type="number" id="in-coinRev" min="0" step="0.01"><small class="src"><b>Adapty</b> → Revenue → consumable</small></div>
+      <div><label class="f">Reklam geliri</label><input type="number" id="in-adRev" min="0" step="0.01"><small class="src"><b>AppLovin MAX</b> → Reporting → Ad revenue</small></div>
     </div>
   </div></details>
 
   <details class="grp"><summary>Ürün döngüleri (haftalık aktif kullanıcı içinden)</summary><div class="inner">
     <div class="row">
-      <div><label class="f">Token harcayan</label><input type="number" id="in-tokenUsers" min="0"></div>
-      <div><label class="f">AI chat kullanan</label><input type="number" id="in-aiUsers" min="0"></div>
-      <div><label class="f">Sosyalde paylaşan</label><input type="number" id="in-socialUsers" min="0"></div>
-      <div><label class="f">Yeni yazar</label><input type="number" id="in-writers" min="0"></div>
-      <div><label class="f">Haftalık aktif (WAU)</label><input type="number" id="in-wau" min="0"></div>
+      <div><label class="f">Token harcayan</label><input type="number" id="in-tokenUsers" min="0"><small class="src"><b>Admin panel</b> → token harcama</small></div>
+      <div><label class="f">AI chat kullanan</label><input type="number" id="in-aiUsers" min="0"><small class="src"><b>Admin panel</b> → AI chat</small></div>
+      <div><label class="f">Sosyalde paylaşan</label><input type="number" id="in-socialUsers" min="0"><small class="src"><b>Admin panel</b> → sosyal gönderi</small></div>
+      <div><label class="f">Yeni yazar</label><input type="number" id="in-writers" min="0"><small class="src"><b>Admin panel</b> → ilk eser yayınlayan</small></div>
+      <div><label class="f">Haftalık aktif (WAU)</label><input type="number" id="in-wau" min="0"><small class="src"><b>GA4</b> Active users (7g) / admin panel</small></div>
     </div>
   </div></details>
 
   <details class="grp"><summary>Segment soruları (haftalık takip)</summary><div class="inner">
     <div class="row">
-      <div><label class="f">Organik install</label><input type="number" id="in-orgInstall" min="0"></div>
-      <div><label class="f">Organik kullanıcı geliri ($)</label><input type="number" id="in-orgRev" min="0" step="0.01"></div>
-      <div><label class="f">Paid kullanıcı geliri ($)</label><input type="number" id="in-paidRev" min="0" step="0.01"></div>
-      <div><label class="f">İlk ödemeye medyan gün (TTFP)</label><input type="number" id="in-ttfp" min="0" step="0.1"></div>
+      <div><label class="f">Organik install</label><input type="number" id="in-orgInstall" min="0"><small class="src">Toplam install − TikTok install</small></div>
+      <div><label class="f">Organik kullanıcı geliri ($)</label><input type="number" id="in-orgRev" min="0" step="0.01"><small class="src"><b>Adapty</b> kaynak filtresi — yoksa boş bırak</small></div>
+      <div><label class="f">Paid kullanıcı geliri ($)</label><input type="number" id="in-paidRev" min="0" step="0.01"><small class="src"><b>Adapty</b> kaynak filtresi — yoksa boş bırak</small></div>
+      <div><label class="f">İlk ödemeye medyan gün (TTFP)</label><input type="number" id="in-ttfp" min="0" step="0.1"><small class="src"><b>GA4/BigQuery</b> — zorsa boş bırak, aylık bak</small></div>
     </div>
     <div class="row" style="margin-top:10px">
-      <div><label class="f">TR install</label><input type="number" id="in-trI" min="0"></div>
-      <div><label class="f">TR gelir ($)</label><input type="number" id="in-trR" min="0" step="0.01"></div>
-      <div><label class="f">SA install</label><input type="number" id="in-saI" min="0"></div>
-      <div><label class="f">SA gelir ($)</label><input type="number" id="in-saR" min="0" step="0.01"></div>
-      <div><label class="f">DE/EU install</label><input type="number" id="in-deI" min="0"></div>
-      <div><label class="f">DE/EU gelir ($)</label><input type="number" id="in-deR" min="0" step="0.01"></div>
+      <div><label class="f">TR install</label><input type="number" id="in-trI" min="0"><small class="src">Mağaza konsolları → ülke</small></div>
+      <div><label class="f">TR gelir ($)</label><input type="number" id="in-trR" min="0" step="0.01"><small class="src"><b>Adapty</b> → ülke filtresi</small></div>
+      <div><label class="f">SA install</label><input type="number" id="in-saI" min="0"><small class="src">Mağaza konsolları → ülke</small></div>
+      <div><label class="f">SA gelir ($)</label><input type="number" id="in-saR" min="0" step="0.01"><small class="src"><b>Adapty</b> → ülke filtresi</small></div>
+      <div><label class="f">DE/EU install</label><input type="number" id="in-deI" min="0"><small class="src">Mağaza konsolları → ülke</small></div>
+      <div><label class="f">DE/EU gelir ($)</label><input type="number" id="in-deR" min="0" step="0.01"><small class="src"><b>Adapty</b> → ülke filtresi</small></div>
     </div>
-    <p class="small" style="margin-top:8px">Kaynak: Branch'te media source = organic/paid kırılımı + ülke filtresi; TTFP için GA4/BigQuery (first_open → ilk purchase medyanı).</p>
   </div></details>
 
   <div class="savebar">
@@ -264,24 +291,27 @@ details.grp .inner{padding:2px 0 14px}
 <!-- ============ GUNLUK ============ -->
 <section class="tab" id="t-gunluk">
   <h2>Günlük nabız — 15 dakika</h2>
-  <p class="note">Her sabah aynı saatte, aynı sırayla. Amaç karar değil, anomaliyi erken yakalamak. Aşağıdaki hızlı girişle günün özetini kaydet; detaylı analiz haftalığa kalır.</p>
+  <p class="note">Her sabah aynı saatte <b>dünün</b> sayılarını gir. Amaç karar değil, anomaliyi erken yakalamak: "gelir ne düzeyde, kaç kullanıcı geldi, kaç abone kazandık, kaç token harcattık" sorularının günlük kaydı.</p>
+
+  <div class="infobox">⚠️ <b>Bütçe ≠ Harcama.</b> "Harcama" alanına TikTok'ta ayarladığın bütçeyi DEĞİL, gerçekleşen harcamayı yaz: <b>TikTok Ads Manager → tarih filtresi "Dün" → "Toplam maliyet / Cost"</b>. Bütçe senin koyduğun üst sınırdır (onu Reklam Paneli sekmesinde kampanya bazında takip ediyorsun); harcama, TikTok'un o gün gerçekten harcadığı paradır — çoğu gün bütçenin altında veya (kampanya tipine göre) biraz üstünde gerçekleşir.</div>
 
   <div class="card" style="margin-bottom:16px">
     <div class="row">
-      <div style="max-width:170px"><label class="f">Tarih</label><input type="date" id="dy-date"></div>
-      <div><label class="f">Harcama ($)</label><input type="number" id="dy-spend" min="0" step="0.01"></div>
-      <div><label class="f">Install</label><input type="number" id="dy-install" min="0"></div>
-      <div><label class="f">Gelir ($)</label><input type="number" id="dy-rev" min="0" step="0.01"></div>
-      <div><label class="f">Yeni abone</label><input type="number" id="dy-subs" min="0"></div>
+      <div style="max-width:170px"><label class="f">Tarih</label><input type="date" id="dy-date"><small class="src">Dünün tarihi</small></div>
+      <div><label class="f">Harcama ($)</label><input type="number" id="dy-spend" min="0" step="0.01"><small class="src"><b>TikTok Ads</b> → "Dün" → Toplam maliyet</small></div>
+      <div><label class="f">Yeni kullanıcı (install)</label><input type="number" id="dy-install" min="0"><small class="src"><b>App Store + Play Console</b> dünkü indirme (gecikirse GA4 "new users")</small></div>
+      <div><label class="f">Gelir ($)</label><input type="number" id="dy-rev" min="0" step="0.01"><small class="src"><b>Adapty</b> dünkü gelir + <b>MAX</b> dünkü reklam geliri</small></div>
     </div>
     <div class="row" style="margin-top:10px">
-      <div><label class="f">Günün notu / anomali</label><input type="text" id="dy-note" placeholder="TikTok TR CPI %30 arttı — kreatif yorgunluğu şüphesi"></div>
+      <div><label class="f">Yeni abone</label><input type="number" id="dy-subs" min="0"><small class="src"><b>Adapty</b> → New subscriptions (dün)</small></div>
+      <div><label class="f">Harcanan token (adet)</label><input type="number" id="dy-tokens" min="0"><small class="src"><b>Admin panel</b> → dün harcanan token</small></div>
+      <div style="flex:2"><label class="f">Günün notu / anomali</label><input type="text" id="dy-note" placeholder="TikTok TR CPI %30 arttı — kreatif yorgunluğu şüphesi"><small class="src">Tek cümle yeter — hafızan rapor değil, kayıt</small></div>
     </div>
     <div class="savebar"><button class="btn" id="dy-save">Günü kaydet</button><span class="saved" id="dy-saved">Kaydedildi ✓</span></div>
   </div>
 
   <div class="tblwrap"><table>
-    <thead><tr><th>Tarih</th><th class="num">Harcama</th><th class="num">Install</th><th class="num">CPI</th><th class="num">Gelir</th><th class="num">ROAS</th><th class="num">Abone</th><th>Not</th><th></th></tr></thead>
+    <thead><tr><th>Tarih</th><th class="num">Harcama</th><th class="num">Yeni kul.</th><th class="num">CPI</th><th class="num">Gelir</th><th class="num">ROAS</th><th class="num">Abone</th><th class="num">Token</th><th>Not</th><th></th></tr></thead>
     <tbody id="dy-tbody"></tbody>
   </table></div>
 
@@ -311,6 +341,51 @@ details.grp .inner{padding:2px 0 14px}
       </ul>
     </div>
   </div>
+</section>
+
+<!-- ============ REKLAM PANELI ============ -->
+<section class="tab" id="t-reklam">
+  <h2>Reklam paneli — kampanya &amp; kreatif yönetimi</h2>
+  <p class="note">Kreatifler sosyal medya ekibinden hazır gelir; senin işin bütçeyi dağıtmak, sayıları toplamak ve ülke bazlı karar vermek. Her kampanya/kreatif için bir kayıt aç; haftada bir (veya anlamlı harcama biriktikçe) sayılarını güncelle — aynı adla kaydedince üzerine yazar. Ülke özeti alttaki tabloda kendiliğinden oluşur.</p>
+
+  <div class="infobox">🎯 <b>Öldürme kuralı (önceden yazılı, pazarlıksız):</b> ~$50 harcamada IPM &lt; 1 veya hook rate &lt; %60 → kapat, "Kapatıldı" işaretle, nedenini nota yaz. Kazandırma kuralı: IPM iyi olan kreatifin kaderini CPI değil <b>D7 ROAS</b> belirler — ölçek kararından önce 1-2 hafta kohort bekle.</div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="row">
+      <div style="flex:2"><label class="f">Kampanya / kreatif adı</label><input type="text" id="ad-name" placeholder="SA_yazar_aichat_ugc_v3"><small class="src">Naming: ülke_kitle_tema_format_v# — aynı adla kaydet = güncelle</small></div>
+      <div style="max-width:130px"><label class="f">Kanal</label><select id="ad-ch"><option>TikTok</option><option>AppLovin</option><option>Meta</option><option>Diğer</option></select></div>
+      <div style="max-width:110px"><label class="f">Ülke</label><input type="text" id="ad-geo" placeholder="TR"></div>
+      <div style="max-width:150px"><label class="f">Tema</label><select id="ad-theme"><option>AI chat</option><option>Romantizm</option><option>Drama</option><option>Yazarlık</option><option>Genel/diğer</option></select></div>
+      <div style="max-width:130px"><label class="f">Kitle</label><select id="ad-aud"><option>Okuyucu</option><option>Yazar</option></select></div>
+      <div style="max-width:140px"><label class="f">Durum</label><select id="ad-status"><option value="test">Test</option><option value="scale">Ölçekte</option><option value="paused">Durduruldu</option><option value="killed">Kapatıldı</option></select></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div><label class="f">Günlük bütçe ($)</label><input type="number" id="ad-budget" min="0" step="0.01"><small class="src">Senin ayarladığın üst sınır</small></div>
+      <div><label class="f">Harcama ($, kümülatif)</label><input type="number" id="ad-spend" min="0" step="0.01"><small class="src"><b>TikTok Ads</b> → kampanya → ömür boyu Cost</small></div>
+      <div><label class="f">Gösterim</label><input type="number" id="ad-imp" min="0"><small class="src">Panel → Impressions</small></div>
+      <div><label class="f">Tık</label><input type="number" id="ad-clicks" min="0"><small class="src">Panel → Clicks</small></div>
+      <div><label class="f">Install</label><input type="number" id="ad-inst" min="0"><small class="src">Panel → App install (SKAN gecikmeli olabilir)</small></div>
+      <div><label class="f">Gelir ($)</label><input type="number" id="ad-rev" min="0" step="0.01"><small class="src">Bu kampanyadan gelen — panel/Branch; yoksa boş</small></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div><label class="f">Not</label><input type="text" id="ad-note" placeholder="Hook güçlü ama SA'da CPM pahalı; v4'te ilk 3 sn değişecek"></div>
+    </div>
+    <div class="savebar"><button class="btn" id="ad-save">Kaydet / Güncelle</button><button class="btn ghost" id="ad-clear">Formu temizle</button><span class="saved" id="ad-saved">Kaydedildi ✓</span></div>
+  </div>
+
+  <h3>Kampanyalar</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Ad</th><th>Kanal</th><th>Ülke</th><th>Tema</th><th>Kitle</th><th>Durum</th><th class="num">Bütçe/g</th><th class="num">Harcama</th><th class="num">CPI</th><th class="num">CTR</th><th class="num">IPM</th><th class="num">ROAS</th><th></th></tr></thead>
+    <tbody id="ad-tbody"></tbody>
+  </table></div>
+  <p class="small" style="margin-top:6px">CPI = harcama/install · CTR = tık/gösterim · IPM = install/(gösterim/1000) · ROAS = gelir/harcama. Satırdaki "Yükle" düğmesi kampanyayı forma geri getirir; sayıları güncelleyip tekrar kaydet.</p>
+
+  <h3>Ülke özeti (aktif kampanyalar)</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Ülke</th><th class="num">Kampanya</th><th class="num">Harcama</th><th class="num">Install</th><th class="num">CPI</th><th class="num">Gelir</th><th class="num">ROAS</th></tr></thead>
+    <tbody id="ad-geo-tbody"></tbody>
+  </table></div>
+  <p class="small" style="margin-top:6px">Bu tablo bütçe dağıtım kararının hammaddesi: CPI ucuz ama ROAS düşük ülke tuzaktır; ROAS'ı kohort olgunlaşınca (D7+) tekrar oku. Tema/kitle karşılaştırması (yazar vs okuyucu) için kampanyaları filtreleyip Excel çıktısındaki "Reklamlar" sayfasında pivotla.</p>
 </section>
 
 <!-- ============ METRIK TAKVIMI ============ -->
@@ -662,7 +737,7 @@ var KEY="kami-growth-os-v1";
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
 var db=load();
-db.weeks=db.weeks||[]; db.days=db.days||[]; db.exps=db.exps||[]; db.notes=db.notes||[]; db.plan=db.plan||{}; db.skills=db.skills||{};
+db.weeks=db.weeks||[]; db.days=db.days||[]; db.ads=db.ads||[]; db.exps=db.exps||[]; db.notes=db.notes||[]; db.plan=db.plan||{}; db.skills=db.skills||{};
 
 // ---- tabs
 var tabs=document.getElementById("tabs");
@@ -787,6 +862,7 @@ document.getElementById("dy-save").addEventListener("click",function(){
   if(!d){alert("Tarih seç.");return}
   var o={date:d, spend:num(document.getElementById("dy-spend").value), install:num(document.getElementById("dy-install").value),
     rev:num(document.getElementById("dy-rev").value), subs:num(document.getElementById("dy-subs").value),
+    tokens:num(document.getElementById("dy-tokens").value),
     note:document.getElementById("dy-note").value.trim()};
   var i=db.days.findIndex(function(x){return x.date===d});
   if(i>=0)db.days[i]=o; else db.days.push(o);
@@ -795,7 +871,7 @@ document.getElementById("dy-save").addEventListener("click",function(){
 });
 function renderDays(){
   var tb=document.getElementById("dy-tbody"); tb.innerHTML="";
-  if(!db.days.length){tb.innerHTML='<tr><td colspan="9" style="color:var(--muted);font-style:italic">Henüz günlük kayıt yok.</td></tr>';return}
+  if(!db.days.length){tb.innerHTML='<tr><td colspan="10" style="color:var(--muted);font-style:italic">Henüz günlük kayıt yok.</td></tr>';return}
   db.days.forEach(function(d,idx){
     var tr=document.createElement("tr");
     tr.innerHTML="<td>"+esc(d.date)+"</td>"+
@@ -805,6 +881,7 @@ function renderDays(){
       '<td class="num">'+money(d.rev)+"</td>"+
       '<td class="num">'+(d.spend>0?fmt(100*d.rev/d.spend,0)+"%":"—")+"</td>"+
       '<td class="num">'+fmt(d.subs,0)+"</td>"+
+      '<td class="num">'+fmt(num(d.tokens),0)+"</td>"+
       "<td>"+esc(d.note)+"</td>"+
       '<td><button class="btn danger sm" data-i="'+idx+'">Sil</button></td>';
     tb.appendChild(tr);
@@ -814,6 +891,96 @@ document.getElementById("dy-tbody").addEventListener("click",function(e){
   var b=e.target.closest("button[data-i]"); if(!b)return;
   if(!confirm("Bu günü sil?"))return;
   db.days.splice(+b.dataset.i,1); save(db); renderDays();
+});
+
+// ---- reklam paneli
+var ADST={test:["Test","acc"],scale:["Ölçekte","good"],paused:["Durduruldu","warn"],killed:["Kapatıldı","bad"]};
+var ADF=["budget","spend","imp","clicks","inst","rev"];
+function adCalc(a){
+  return {
+    cpi: num(a.inst)>0? num(a.spend)/num(a.inst):NaN,
+    ctr: num(a.imp)>0? 100*num(a.clicks)/num(a.imp):NaN,
+    ipm: num(a.imp)>0? num(a.inst)/(num(a.imp)/1000):NaN,
+    roas: num(a.spend)>0? 100*num(a.rev)/num(a.spend):NaN
+  };
+}
+document.getElementById("ad-save").addEventListener("click",function(){
+  var name=document.getElementById("ad-name").value.trim();
+  if(!name){alert("Kampanya/kreatif adı gir (naming convention: ülke_kitle_tema_format_v#).");return}
+  var o={name:name, ch:document.getElementById("ad-ch").value, geo:document.getElementById("ad-geo").value.trim().toUpperCase(),
+    theme:document.getElementById("ad-theme").value, aud:document.getElementById("ad-aud").value,
+    status:document.getElementById("ad-status").value, note:document.getElementById("ad-note").value.trim(),
+    upd:new Date().toISOString().slice(0,10)};
+  ADF.forEach(function(k){o[k]=num(document.getElementById("ad-"+k).value)});
+  var i=db.ads.findIndex(function(a){return a.name===name});
+  if(i>=0){o.created=db.ads[i].created; db.ads[i]=o} else {o.created=o.upd; db.ads.unshift(o)}
+  save(db); renderAds(); flash("ad-saved");
+});
+document.getElementById("ad-clear").addEventListener("click",function(){
+  ["ad-name","ad-geo","ad-note"].forEach(function(id){document.getElementById(id).value=""});
+  ADF.forEach(function(k){document.getElementById("ad-"+k).value=""});
+});
+function renderAds(){
+  var tb=document.getElementById("ad-tbody"); tb.innerHTML="";
+  var gb=document.getElementById("ad-geo-tbody"); gb.innerHTML="";
+  if(!db.ads.length){
+    tb.innerHTML='<tr><td colspan="13" style="color:var(--muted);font-style:italic">Henüz kampanya yok. İlk kreatif geldiğinde yukarıdan kaydet.</td></tr>';
+    gb.innerHTML='<tr><td colspan="7" style="color:var(--muted);font-style:italic">Kampanya eklenince ülke özeti burada oluşur.</td></tr>';
+    return;
+  }
+  db.ads.forEach(function(a,idx){
+    var c=adCalc(a), s=ADST[a.status]||ADST.test;
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td>"+esc(a.name)+"</td><td>"+esc(a.ch)+"</td><td>"+esc(a.geo)+"</td><td>"+esc(a.theme)+"</td><td>"+esc(a.aud)+"</td>"+
+      '<td><span class="pill '+s[1]+'">'+s[0]+"</span></td>"+
+      '<td class="num">'+money(num(a.budget))+"</td>"+
+      '<td class="num">'+money(num(a.spend))+"</td>"+
+      '<td class="num">'+money(c.cpi)+"</td>"+
+      '<td class="num">'+(isFinite(c.ctr)?fmt(c.ctr,2)+"%":"—")+"</td>"+
+      '<td class="num">'+(isFinite(c.ipm)?fmt(c.ipm,1):"—")+"</td>"+
+      '<td class="num">'+(isFinite(c.roas)?fmt(c.roas,0)+"%":"—")+"</td>"+
+      '<td style="white-space:nowrap"><button class="btn ghost sm" data-load="'+idx+'">Yükle</button> <button class="btn danger sm" data-del="'+idx+'">Sil</button></td>';
+    if(a.note){tr.title=a.note}
+    tb.appendChild(tr);
+  });
+  // ülke özeti (kapatılmışlar hariç)
+  var geos={};
+  db.ads.forEach(function(a){
+    if(a.status==="killed")return;
+    var g=a.geo||"?";
+    geos[g]=geos[g]||{n:0,spend:0,inst:0,rev:0};
+    geos[g].n++; geos[g].spend+=num(a.spend); geos[g].inst+=num(a.inst); geos[g].rev+=num(a.rev);
+  });
+  var keys=Object.keys(geos).sort();
+  if(!keys.length){gb.innerHTML='<tr><td colspan="7" style="color:var(--muted);font-style:italic">Aktif kampanya yok.</td></tr>';return}
+  keys.forEach(function(g){
+    var x=geos[g];
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td><b>"+esc(g)+"</b></td>"+
+      '<td class="num">'+x.n+"</td>"+
+      '<td class="num">'+money(x.spend)+"</td>"+
+      '<td class="num">'+fmt(x.inst,0)+"</td>"+
+      '<td class="num">'+(x.inst>0?money(x.spend/x.inst):"—")+"</td>"+
+      '<td class="num">'+money(x.rev)+"</td>"+
+      '<td class="num">'+(x.spend>0?fmt(100*x.rev/x.spend,0)+"%":"—")+"</td>";
+    gb.appendChild(tr);
+  });
+}
+document.getElementById("ad-tbody").addEventListener("click",function(e){
+  var l=e.target.closest("button[data-load]"), d=e.target.closest("button[data-del]");
+  if(d){if(confirm("Kampanyayı sil? (Kapatılan kampanyayı silme — 'Kapatıldı' işaretle ki öğrenim kaybolmasın)")){db.ads.splice(+d.dataset.del,1);save(db);renderAds()}return}
+  if(l){
+    var a=db.ads[+l.dataset.load];
+    document.getElementById("ad-name").value=a.name;
+    document.getElementById("ad-ch").value=a.ch;
+    document.getElementById("ad-geo").value=a.geo;
+    document.getElementById("ad-theme").value=a.theme;
+    document.getElementById("ad-aud").value=a.aud;
+    document.getElementById("ad-status").value=a.status;
+    document.getElementById("ad-note").value=a.note||"";
+    ADF.forEach(function(k){document.getElementById("ad-"+k).value=a[k]!=null?a[k]:""});
+    window.scrollTo({top:0});
+  }
 });
 
 // ---- deneyler
@@ -982,7 +1149,12 @@ document.getElementById("db-export").addEventListener("click",function(){
       num(w.socialUsers),r2(pct(num(w.socialUsers),num(w.wau))),num(w.writers)];
   });
   var dyRows=db.days.map(function(d){
-    return [d.date,d.spend,d.install,r2(d.install>0?d.spend/d.install:NaN),d.rev,r2(d.spend>0?100*d.rev/d.spend:NaN),d.subs,d.note];
+    return [d.date,d.spend,d.install,r2(d.install>0?d.spend/d.install:NaN),d.rev,r2(d.spend>0?100*d.rev/d.spend:NaN),d.subs,num(d.tokens),d.note];
+  });
+  var adRows=db.ads.map(function(a){
+    var c=adCalc(a), s=ADST[a.status]||ADST.test;
+    return [a.name,a.ch,a.geo,a.theme,a.aud,s[0],num(a.budget),num(a.spend),num(a.imp),num(a.clicks),num(a.inst),
+      r2(c.cpi),r2(c.ctr),r2(c.ipm),num(a.rev),r2(c.roas),a.upd||"",a.note||""];
   });
   var exRows=db.exps.map(function(x){var s=STM[x.st]||STM.running;return [x.d,x.t,x.ch,x.geo,s[0],x.hy,x.re,x.de]});
   var ntRows=db.notes.map(function(n){return [n.d,n.t]});
@@ -990,7 +1162,8 @@ document.getElementById("db-export").addEventListener("click",function(){
     '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'+
     xSheet("Haftalik",["Hafta","Harcama $","Install","CPI $","Aktivasyon","Aktivasyon %","D1","D1 %","D7","D7 %","Payer","Payer %","Abonelik $","Token $","Reklam $","Toplam Gelir $","ROAS %","ARPU $"],wkRows)+
     xSheet("Segment",["Hafta","Org Install","Org ARPU $","Paid Install","Paid ARPU $","TR Install","TR ARPU $","SA Install","SA ARPU $","DE Install","DE ARPU $","TTFP gün","WAU","Token kul.","Token %","AI kul.","AI %","Sosyal kul.","Sosyal %","Yeni yazar"],segRows)+
-    xSheet("Gunluk",["Tarih","Harcama $","Install","CPI $","Gelir $","ROAS %","Yeni abone","Not"],dyRows)+
+    xSheet("Gunluk",["Tarih","Harcama $","Yeni kullanici","CPI $","Gelir $","ROAS %","Yeni abone","Harcanan token","Not"],dyRows)+
+    xSheet("Reklamlar",["Ad","Kanal","Ulke","Tema","Kitle","Durum","Butce/g $","Harcama $","Gosterim","Tik","Install","CPI $","CTR %","IPM","Gelir $","ROAS %","Son guncelleme","Not"],adRows)+
     xSheet("Deneyler",["Tarih","Başlık","Kanal","Ülke","Durum","Hipotez","Sonuç","Karar"],exRows)+
     xSheet("Notlar",["Tarih","Not"],ntRows)+
     "</Workbook>";
@@ -1022,14 +1195,14 @@ document.getElementById("db-file").addEventListener("change",function(e){
       var d=JSON.parse(r.result);
       if(typeof d!=="object"||d===null)throw new Error("format");
       if(!confirm("Yedekteki veriler bu tarayıcıdakilerin ÜZERİNE yazılacak. Devam?"))return;
-      d.weeks=d.weeks||[]; d.days=d.days||[]; d.exps=d.exps||[]; d.notes=d.notes||[]; d.plan=d.plan||{}; d.skills=d.skills||{};
+      d.weeks=d.weeks||[]; d.days=d.days||[]; d.ads=d.ads||[]; d.exps=d.exps||[]; d.notes=d.notes||[]; d.plan=d.plan||{}; d.skills=d.skills||{};
       db=d; save(db); location.reload();
     }catch(err){alert("Bu dosya geçerli bir yedek değil (JSON okunamadı).")}
   };
   r.readAsText(f);
 });
 
-renderFunnel(); renderWeeks(); renderDays(); renderExps(); renderPlan(); renderSkills(); renderNotes();
+renderFunnel(); renderWeeks(); renderDays(); renderAds(); renderExps(); renderPlan(); renderSkills(); renderNotes();
 })();
 </script>
 
