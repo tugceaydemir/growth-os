@@ -156,6 +156,7 @@ small.src b{color:var(--accent-ink)}
   <button data-t="gunluk">Günlük</button>
   <button data-t="reklam">Reklam Paneli</button>
   <button data-t="analiz">Ülke Analizi</button>
+  <button data-t="nasil">Nereden Bakılır</button>
   <button data-t="takvim">Metrik Takvimi</button>
   <button data-t="kpi">KPI Sözlüğü</button>
   <button data-t="deney">Deney Günlüğü</button>
@@ -474,6 +475,103 @@ small.src b{color:var(--accent-ink)}
     <li><b>Almanya:</b> Almanca yerelleştirme + ödeyenlere retargeting planı.</li>
     <li><b>AI chat/sosyal görünürlüğü:</b> kullanan vs kullanmayan D7 farkını GA4'te ölç, sonucu ürün argümanına çevir.</li>
   </ul>
+</section>
+
+<!-- ============ NEREDEN BAKILIR ============ -->
+<section class="tab" id="t-nasil">
+  <h2>Nereden bakılır — adım adım tıklama yolları</h2>
+  <p class="note">Her metriğin hangi sistemde, hangi menüden çıkarılacağı. Bu sayfayı açıp yanına GA4/Adapty'yi aç, adımları takip et. Menü adları değişebilir; mantık aynı kalır.</p>
+
+  <details class="grp" open><summary>⭐ D1 / D7 retention — GA4 (en önemli, iki yol)</summary><div class="inner">
+    <p><b>Yol A — Hızlı bakış (genel eğri, ülke ayrımı yok):</b></p>
+    <ol class="tight">
+      <li>Google Analytics → sol üstte doğru mülkü seç: <b>Çizgi App</b></li>
+      <li>Üstteki arama kutusuna <b>"Elde tutma"</b> yaz → <b>Raporlar &gt; Yaşam döngüsü &gt; Elde Tutma</b>'yı seç</li>
+      <li>Sağ alttaki <b>"Kullanıcıları elde tutma"</b> grafiği kohort eğrisidir (0. gün %100'den düşer)</li>
+      <li>Eğrinin üzerine gel: <b>1. Gün = D1</b>, <b>7. Gün = D7</b> yüzdesi tooltip'te çıkar</li>
+      <li>Sağ üstten tarih aralığını ayarla (28 gün / 90 gün)</li>
+    </ol>
+    <p style="margin-top:10px"><b>Yol B — Kesin sayı + ülke bazlı (asıl kurman gereken):</b></p>
+    <ol class="tight">
+      <li>GA4 → sol menü en altta <b>"Keşfet / Explore"</b> (pusula ikonu)</li>
+      <li><b>"Grup analizi / Cohort exploration"</b> şablonunu aç</li>
+      <li>Kohort dahil etme: <b>First touch</b> · Dönüş kriteri: <b>Any event</b> (veya chapter_read)</li>
+      <li>Kohort ayrıntısı: <b>Daily</b> (günlük) seç → D0, D1, D2... D7 kolonları tablo olarak çıkar</li>
+      <li>Sol "Ayrıntı düzeyi / Breakdown" alanına <b>Ülke (Country)</b> boyutunu sürükle → her ülke için ayrı D1/D7</li>
+      <li>Sağ üstten dışa aktar (indir) → dashboard'daki haftalık forma D1/D7 gir</li>
+    </ol>
+    <p class="small">Not: Yol A eğriden hover ile tahmin verir; kesin karar için Yol B (kohort tablosu) şart. Bir kez kurunca kaydedilir, her hafta açıp bakarsın.</p>
+  </div></details>
+
+  <details class="grp"><summary>Ülke kırılımı (kullanıcı, etkileşim, gelir) — GA4</summary><div class="inner">
+    <ol class="tight">
+      <li>GA4 → <b>Raporlar &gt; Kullanıcı &gt; Kullanıcı özellikleri &gt; Demografik grup ayrıntıları</b></li>
+      <li>Tablo boyutu açılırından <b>"Ülke"</b> seç</li>
+      <li>Kolonlar: Etkin kullanıcı, Yeni kullanıcı, Etkileşim oranı, Ort. etkileşim süresi, <b>Toplam gelir</b></li>
+      <li>Sağ üstten tarih; "Sayfa başına satır" 25/50 yap ki tüm ülkeleri gör</li>
+      <li>Bir ülkeye tıklarsan o ülkeye filtreler — funnel'ı ülke bazlı incelemek için</li>
+    </ol>
+  </div></details>
+
+  <details class="grp"><summary>Nerede kullanıcı kaybediyoruz — GA4 funnel &amp; event</summary><div class="inner">
+    <ol class="tight">
+      <li>GA4 → <b>Keşfet &gt; Huni keşfi (Funnel exploration)</b></li>
+      <li>Adımları sırayla ekle: <b>first_open → (onboarding_done) → chapter_read → paywall_view → purchase</b> (event adlarını Berke'den al)</li>
+      <li>Her adımda düşüş yüzdesi çıkar — en büyük düşüşün olduğu adım "delik"tir</li>
+      <li>Ülke/kaynak kırılımı için sağdaki breakdown'a boyut ekle</li>
+      <li>Basit alternatif: <b>Raporlar &gt; Etkileşim &gt; Etkinlikler</b> — hangi event kaç kez tetiklenmiş, kaba oran verir</li>
+    </ol>
+  </div></details>
+
+  <details class="grp"><summary>AI chat / sosyal etkisi — GA4 karşılaştırma</summary><div class="inner">
+    <ol class="tight">
+      <li>GA4 → herhangi bir rapor → üstte <b>"Karşılaştırma ekle"</b></li>
+      <li>Segment 1: <b>ai_chat_open event'i tetikleyen</b> kullanıcılar · Segment 2: tetiklemeyenler</li>
+      <li>Retention/gelir metriklerini iki segment arasında kıyasla → "AI chat kullananın D7'si ne kadar yüksek" ürün argümanın olur</li>
+      <li>Aynısını social_post için yap</li>
+    </ol>
+  </div></details>
+
+  <details class="grp"><summary>Gelir, abone, token, churn — Adapty</summary><div class="inner">
+    <ol class="tight">
+      <li>Adapty → <b>Analytics / Charts</b></li>
+      <li><b>Gelir:</b> Revenue grafiği → ürün tipine göre böl (subscription = abonelik, consumable = token)</li>
+      <li><b>Yeni abone / ilk ödeyen:</b> New subscriptions / New purchases</li>
+      <li><b>Payer conversion:</b> installs → paying dönüşümü</li>
+      <li><b>Churn / yenileme:</b> Retention veya Renewals kohortu → 1.→2. ay yenileme oranı (en kritik)</li>
+      <li><b>Ülke:</b> filtrelerden store country → ülke bazlı gelir/ARPU</li>
+      <li><b>TTFP (ilk ödemeye süre):</b> "time to purchase" tipi grafik varsa oradan; yoksa GA4/BigQuery</li>
+    </ol>
+  </div></details>
+
+  <details class="grp"><summary>Reklam metrikleri — TikTok Ads &amp; AppLovin</summary><div class="inner">
+    <ol class="tight">
+      <li>TikTok Ads Manager → <b>Kampanya</b> tablosu → tarih filtresi (Dün / Bu hafta)</li>
+      <li>Kolonlar: <b>Cost (harcama), Impressions, Clicks, CTR, CPM, App install, CPI</b></li>
+      <li><b>IPM</b> = install ÷ (gösterim/1000); kolon yoksa özelleştir veya elle hesapla</li>
+      <li><b>Hook rate (3 sn):</b> kreatif/video raporu → "2-second / 6-second video views" veya "watched full video" oranları</li>
+      <li>AppLovin (MAX gelir): <b>Reporting</b> → ad revenue, eCPM, ARPDAU; UA açarsan AppLovin Ads paneli ayrı</li>
+    </ol>
+  </div></details>
+
+  <details class="grp"><summary>Mağaza CVR &amp; ülke indirme — App Store / Play Console</summary><div class="inner">
+    <ol class="tight">
+      <li><b>Play Console</b> → İstatistikler → yeni kullanıcı edinme; Mağaza performansı → görüntüleme→install (CVR); ülke kırılımı filtrede</li>
+      <li><b>App Store Connect</b> → Analytics → Yüklemeler; kaynak (referrer) ve ülke kırılımı; Product Page → CVR</li>
+      <li>A/B testi: Play'de <b>Store Listing Experiments</b>, iOS'ta <b>Product Page Optimization</b></li>
+    </ol>
+  </div></details>
+
+  <details class="grp"><summary>Rakip &amp; pazar araştırması — nereden</summary><div class="inner">
+    <ul class="tight">
+      <li><b>Sensor Tower / AppMagic</b> — rakip indirme-gelir tahmini; ücretsiz blog raporları + ücretli panel (ülke×gelir kırılımı ücretli)</li>
+      <li><b>TikTok Creative Center</b> (ads.tiktok.com/business/creativecenter) — rakip/sektör kreatiflerini ülke bazlı izle, ücretsiz</li>
+      <li><b>Meta Ad Library</b> (facebook.com/ads/library) — rakiplerin aktif reklamları, ücretsiz</li>
+      <li><b>data.ai, Business of Apps, Statista</b> — sektör raporları</li>
+      <li>Mağaza sayfaları — rakip fiyat/paket/ekran görüntüsü tersine mühendisliği</li>
+    </ul>
+    <p class="small">Bugünkü Ülke Analizi'ndeki rakip rakamları bu kamuya açık kaynaklardan derlendi (her satırda kaynak etiketi var).</p>
+  </div></details>
 </section>
 
 <!-- ============ METRIK TAKVIMI ============ -->
