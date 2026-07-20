@@ -143,12 +143,15 @@ small.src b{color:var(--accent-ink)}
   <h1>Kami Growth OS</h1>
   <p class="sub">Tuğçe'nin kişisel kokpiti. Veriler bu tarayıcıda saklanır (localStorage) — düzenli olarak Excel raporu ve JSON yedek indir; başka cihaza geçerken JSON yedeğini yükle.</p>
   <div class="savebar" style="margin-top:10px">
+    <span style="font-size:12.5px;color:var(--muted);font-weight:600">Para birimi:</span>
+    <select id="cur-sel" style="width:auto;min-width:120px"><option value="₺">₺ TL</option><option value="$">$ USD</option></select>
     <button class="btn sm" id="db-export">Verileri indir (Excel)</button>
     <button class="btn ghost sm" id="db-json">JSON yedek</button>
     <button class="btn ghost sm" id="db-import">Yedekten yükle</button>
     <input type="file" id="db-file" accept=".json,application/json" style="display:none">
     <span class="saved" id="db-saved">Tamam ✓</span>
   </div>
+  <p class="small" style="margin-top:6px">TikTok Türkiye harcaması TL faturalanır — ₺ seç, tüm tutarları TL gir. Not: seçim yalnızca etikettir, kur dönüşümü yapmaz; tek para biriminde tutarlı kal (ROAS'ın doğru çıkması için harcama ve gelir aynı birimde olmalı).</p>
 </header>
 
 <nav class="tabs" id="tabs">
@@ -944,6 +947,7 @@ function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){re
 function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
 var db=load();
 db.weeks=db.weeks||[]; db.days=db.days||[]; db.ads=db.ads||[]; db.exps=db.exps||[]; db.notes=db.notes||[]; db.plan=db.plan||{}; db.skills=db.skills||{};
+var CUR = db.currency || "₺";
 
 // ---- tabs
 var tabs=document.getElementById("tabs");
@@ -959,7 +963,7 @@ tabs.addEventListener("click",function(e){
 // ---- helpers
 function fmt(n,d){return isFinite(n)?n.toLocaleString("tr-TR",{maximumFractionDigits:d==null?1:d}):"—"}
 function pct(a,b){return b>0?(100*a/b):NaN}
-function money(n){return isFinite(n)?"$"+n.toLocaleString("en-US",{maximumFractionDigits:2}):"—"}
+function money(n){if(!isFinite(n))return "—";return CUR==="₺"?n.toLocaleString("tr-TR",{maximumFractionDigits:2})+" ₺":"$"+n.toLocaleString("en-US",{maximumFractionDigits:2})}
 function esc(s){var d=document.createElement("div");d.textContent=s||"";return d.innerHTML}
 function flash(id){var el=document.getElementById(id);el.classList.add("show");setTimeout(function(){el.classList.remove("show")},1800)}
 function num(v){var n=parseFloat(v);return isFinite(n)?n:0}
@@ -1329,7 +1333,7 @@ function xCell(v){
 }
 function xSheet(name,headers,rows){
   var s='<Worksheet ss:Name="'+xEsc(name)+'"><Table>';
-  s+="<Row>"+headers.map(function(h){return xCell(h)}).join("")+"</Row>";
+  s+="<Row>"+headers.map(function(h){return xCell(String(h).replace("$",CUR))}).join("")+"</Row>";
   rows.forEach(function(r){s+="<Row>"+r.map(xCell).join("")+"</Row>"});
   return s+"</Table></Worksheet>";
 }
@@ -1407,6 +1411,15 @@ document.getElementById("db-file").addEventListener("change",function(e){
   };
   r.readAsText(f);
 });
+
+// para birimi seçici + etiketlerdeki ($) -> seçili sembol
+(function(){
+  document.querySelectorAll("label.f").forEach(function(l){
+    l.innerHTML=l.innerHTML.replace(/\(\$\)/g,"("+CUR+")");
+  });
+  var sel=document.getElementById("cur-sel");
+  if(sel){ sel.value=CUR; sel.addEventListener("change",function(){db.currency=this.value;save(db);location.reload();}); }
+})();
 
 renderFunnel(); renderWeeks(); renderDays(); renderAds(); renderExps(); renderPlan(); renderSkills(); renderNotes();
 })();
