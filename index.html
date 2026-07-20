@@ -482,6 +482,26 @@ small.src b{color:var(--accent-ink)}
   <h2>Nereden bakılır — adım adım tıklama yolları</h2>
   <p class="note">Her metriğin hangi sistemde, hangi menüden çıkarılacağı. Bu sayfayı açıp yanına GA4/Adapty'yi aç, adımları takip et. Menü adları değişebilir; mantık aynı kalır.</p>
 
+  <div class="infobox">🧭 <b>Karşılaştırma mantığı:</b> Tek sayı bir şey söylemez — anlam karşılaştırınca doğar. Aynı metriği <b>4 eksende</b> oku: <b>Zaman</b> (bu hafta vs geçen), <b>Kaynak</b> (organik vs paid), <b>Ülke</b> (TR/SA/DE), <b>Özellik</b> (AI chat kullanan vs değil). GA4 kohort keşfinde tek raporu açıp sadece <b>"breakdown/kırılım" boyutunu</b> değiştirerek dördünü de görürsün.</div>
+
+  <details class="grp"><summary>🧭 4 karşılaştırma ekseni — D1/D7 &amp; churn'ü nereden okursun</summary><div class="inner">
+    <p><b>D1/D7 (GA4 → Keşfet → Grup analizi/Cohort), sadece kırılımı değiştir:</b></p>
+    <ul class="tight">
+      <li><b>Zaman:</b> haftalık kohortları yan yana / tarih aralığını kaydır → D7 yükseliyor mu</li>
+      <li><b>Kaynak:</b> breakdown = <b>First user source / medium</b> → paid, organik kadar kalıyor mu</li>
+      <li><b>Ülke:</b> breakdown = <b>Country</b> → hangi ülke yapışıyor</li>
+      <li><b>Özellik:</b> rapor yerine "Karşılaştırma ekle" → segment: <b>ai_chat_open</b> tetikleyen vs değil</li>
+    </ul>
+    <p style="margin-top:8px"><b>Churn (Adapty → Charts → Retention/Renewals), filtreyi değiştir:</b></p>
+    <ul class="tight">
+      <li><b>Zaman:</b> ay ay; özellikle 1.→2. ay yenileme (en kritik kırılım)</li>
+      <li><b>Kaynak:</b> attribution filtresi (Adapty'ye kaynak akıyorsa)</li>
+      <li><b>Ülke:</b> store country filtresi</li>
+      <li><b>Özellik:</b> Adapty bilmez → GA4'te özelliği kullanan segmentin yenileme farkı (ileri seviye)</li>
+    </ul>
+    <p class="small">Bu dört eksen için hazır bir Google Sheets şablonu üretildi (Downloads → Kami_KPI_Karsilastirma.xlsx) — Drive'a yükleyip yöneticiyle canlı doldurursun.</p>
+  </div></details>
+
   <details class="grp" open><summary>⭐ D1 / D7 retention — GA4 (en önemli, iki yol)</summary><div class="inner">
     <p><b>Yol A — Hızlı bakış (genel eğri, ülke ayrımı yok):</b></p>
     <ol class="tight">
