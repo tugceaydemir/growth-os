@@ -159,6 +159,7 @@ small.src b{color:var(--accent-ink)}
   <button data-t="gunluk">Günlük</button>
   <button data-t="reklam">Reklam Paneli</button>
   <button data-t="analiz">Ülke Analizi</button>
+  <button data-t="kreatif">Kreatif Plan</button>
   <button data-t="nasil">Nereden Bakılır</button>
   <button data-t="takvim">Metrik Takvimi</button>
   <button data-t="kpi">KPI Sözlüğü</button>
@@ -478,6 +479,78 @@ small.src b{color:var(--accent-ink)}
     <li><b>SA hazırlığı:</b> Arapça yerelleştirme + STC Pay/carrier billing + içerik-demografi uyum testi.</li>
     <li><b>Almanya:</b> Almanca yerelleştirme + ödeyenlere retargeting planı.</li>
     <li><b>AI chat/sosyal görünürlüğü:</b> kullanan vs kullanmayan D7 farkını GA4'te ölç, sonucu ürün argümanına çevir.</li>
+  </ul>
+</section>
+
+<!-- ============ KREATIF PLAN ============ -->
+<section class="tab" id="t-kreatif">
+  <h2>Ülke bazlı kreatif plan</h2>
+  <p class="note">Tamamen GA4 gerçek verisinden türetildi. <b>Kaynak:</b> Google Analytics (Çizgi App / GA4) → Raporlar → Demografik grup ayrıntıları → Ülke + Yaşam döngüsü → Elde Tutma. Dönem: son 28 gün (22 Haz–19 Tem 2026), 20 Tem'de çekildi. Kreatifleri sosyal medya ekibi üretir; bu sayfa onlara "hangi ülkeye hangi açı" brief'idir.</p>
+
+  <div class="infobox">🧠 <b>Kreatif mantığı = veri → açı.</b> Yüksek etkileşim (uzun okuma süresi) → "içerik tutuyor, okumaya doyamayacaksın" mesajı doğrulanmış demektir. Yüksek etkileşim + sıfır gelir → ödeme gücü yok, paid kreatif yapma. Az kullanıcı ama ödüyor → cold kreatif değil, yerelleştirme + retargeting. Zayıf D7 (%3,5) → kreatif YANLIŞ kitleyi getirmesin; clickbait değil, gerçek içerik kancası kur (yoksa pahalı kullanıcı ilk gün kaçar).</div>
+
+  <h3>Veri özeti (kreatif kararının dayanağı)</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Ülke</th><th class="num">Kullanıcı</th><th class="num">Ort. okuma</th><th class="num">Gelir payı</th><th>Kreatif kararı</th></tr></thead>
+    <tbody>
+      <tr><td><b>Türkiye</b></td><td class="num">71.155</td><td class="num">34 dk</td><td class="num">%59,8</td><td><span class="pill good">Ana kreatif pazarı</span></td></tr>
+      <tr><td><b>Azerbaycan</b></td><td class="num">3.921</td><td class="num">39 dk</td><td class="num">~%0</td><td><span class="pill warn">Sadece organik</span></td></tr>
+      <tr><td><b>Almanya</b></td><td class="num">1.697</td><td class="num">15 dk</td><td class="num">%0,98</td><td><span class="pill acc">Yerelleştirme + retargeting</span></td></tr>
+      <tr><td>ABD/Hollanda/Fransa</td><td class="num">~1.000'er</td><td class="num">7–15 dk</td><td class="num">~%0</td><td><span class="pill bad">Paid kreatif yok</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Ülke brief'leri</h3>
+
+  <div class="expcard">
+    <div class="head"><span class="title">🇹🇷 Türkiye — ana kreatif pazarı</span><span class="pill good">Bütçenin çoğu</span></div>
+    <p><b>Veri sinyali:</b> Kullanıcının %88'i, gelirin %59,8'i burada; ortalama okuma <b>34 dk</b> (çok yüksek → içerik gerçekten tutuyor). Ama D7 ~%3,5 (ilk hafta ~%85 kayıp). <span class="tag">GA4 Ülke + Elde Tutma</span></p>
+    <p><b>Kreatif mantığı:</b> Yüksek okuma süresi = "okumaya doyamayacaksın" mesajı veriyle kanıtlı. Wattpad TR'de kapalı → yazar+okuyucu boşluğu (rakip araştırması). Zayıf D7 nedeniyle kreatif clickbait olmamalı; gerçek içerik kancası kur.</p>
+    <p><b>3 kreatif hattı:</b></p>
+    <ul class="tight">
+      <li><b>Okuyucu / drama hook:</b> İlk 3 saniyede cliffhanger sahne ("kocam en yakın arkadaşımla..."), ardından "devamı Kami'de". ReelShort formülü.</li>
+      <li><b>AI chat / farklılaştırıcı:</b> "Favori karakterinle konuş" — ekranda gerçek chat balonu. Rakiplerde yok, senin kozun.</li>
+      <li><b>Yazar / fırsat:</b> "Hikayeni yaz, okunsun, kazan" — Wattpad boşluğuna oyna.</li>
+    </ul>
+    <p><b>Format:</b> Dikey UGC video, ilk 3 sn tutma metriği izlenerek (%75+ hedef); screenshot'lanabilir chat/bölüm ekranları. Dil: Türkçe. <b>Kitle:</b> okuyucu + yazar (ikisini ayrı kampanyada test et — ClickUp'ta var). <b>CTA:</b> "İlk bölüm bedava, oku."</p>
+  </div>
+
+  <div class="expcard">
+    <div class="head"><span class="title">🇦🇿 Azerbaycan — sadece organik, paid yok</span><span class="pill warn">Kreatif bütçesi ayırma</span></div>
+    <p><b>Veri sinyali:</b> 3.921 kullanıcı, ortalama okuma <b>39 dk</b> (tüm pazarların en yükseği, TR'den bile fazla!) ama gelir ~₺0. <span class="tag">GA4 Ülke</span></p>
+    <p><b>Kreatif mantığı:</b> Türkçe içerik dil yakınlığıyla burada çok tutuyor (yüksek okuma), ama ödeme gücü düşük → paid kreatife para dökmek zarardır. Yine de: TR için ürettiğin Türkçe organik içerik zaten buraya da ulaşıyor (ekstra maliyetsiz kazanç).</p>
+    <p><b>Aksiyon:</b> Paid kreatif YOK. Organik sosyal içeriğini Türkçe tuttuğun sürece AZ'ye de yayılır — topluluk/UGC ve içerik geri bildirimi kaynağı olarak değerlendir. Önce Adapty'de gelirin gerçekten ~0 mı olduğunu doğrula.</p>
+  </div>
+
+  <div class="expcard">
+    <div class="head"><span class="title">🇩🇪 Almanya — yerelleştirme + retargeting</span><span class="pill acc">Üründen besle</span></div>
+    <p><b>Veri sinyali:</b> 1.697 kullanıcı (az), ortalama okuma <b>15 dk</b> (düşük) ama <b>ödüyor</b> — TR dışı en yüksek gelir payı (%0,98). <span class="tag">GA4 Ülke</span></p>
+    <p><b>Kreatif mantığı:</b> Az ama ödeyen kitle. Sıfırdan cold kullanıcı avlamak pahalı ve rekabetçi (Naver/Kakao yerleşik). Kreatif çabasını yeni kullanıcıya değil, mevcut ödeyene yönelt.</p>
+    <p><b>Aksiyon:</b> Cold UA kreatifi ÖNCELİK DEĞİL. Almanca yerelleştirilmiş <b>retargeting</b> kreatifi (uygulamayı indirip dönmeyenlere) + premium/kalite tonu. Büyük kreatif bütçesi ayırma.</p>
+  </div>
+
+  <div class="expcard">
+    <div class="head"><span class="title">🇺🇸🇳🇱🇫🇷 ABD / Hollanda / Fransa — paid kreatif yok</span><span class="pill bad">Şimdilik pas</span></div>
+    <p><b>Veri sinyali:</b> ~1.000'er kullanıcı, ortalama okuma 7–15 dk (düşük), gelir ~₺0. ABD sadece 7 dk. <span class="tag">GA4 Ülke</span></p>
+    <p><b>Kreatif mantığı:</b> Düşük etkileşim + sıfır gelir = kreatif yatırımı boşa gider. ABD en büyük ödeme pazarı olsa da en pahalı/rekabetçi ve Türkçe/Arapça içerik avantajın burada işlemez.</p>
+    <p><b>Aksiyon:</b> Paid kreatif üretme. İleride İngilizce içerik + ayrı strateji gerektirir.</p>
+  </div>
+
+  <div class="expcard">
+    <div class="head"><span class="title">🇸🇦 Suudi Arabistan — GA'da yok, hedef pazar</span><span class="pill acc">Hazırlık kreatifi</span></div>
+    <p><b>Veri sinyali:</b> GA4'te henüz kullanıcı yok (reklam açılmadı) — bu brief <b>rakip pazar araştırmasından</b>, GA'dan değil. <span class="tag">Sensor Tower / Antom / PocketGamer (Ülke Analizi sekmesi)</span></p>
+    <p><b>Kreatif mantığı:</b> Yüksek harcama gücü, devlet destekli talep, pazar erken fazda (erken-giren avantajı). Okuyucu/premium açı; yazar ikincil.</p>
+    <p><b>Aksiyon:</b> Reklamdan ÖNCE: Arapça yerelleştirilmiş kreatif + STC Pay/carrier billing. Demografi testi: SA kısa-drama izleyicisi %60+ erkek/aksiyon; Kami romantik ağırlıklıysa hem romantik hem aksiyon/gerilim temalı kreatifi A/B test et. Mesaj: "premium roman/webtoon, ilk bölüm bedava" (Arapça).</p>
+  </div>
+
+  <h3>Tüm kreatifler için ortak kurallar (veri + playbook)</h3>
+  <ul class="tight">
+    <li><b>İlk 3 saniye kutsaldır:</b> Her kreatifte 3 sn izlenme oranını ölç; %75+ = format tuttu, &lt;%60 = öldür (Jay Raavi altın metriği).</li>
+    <li><b>Clickbait yapma:</b> D7 zaten zayıf; kreatif yanlış kitle getirirse ilk gün kaçar. Gerçek içerik kancası kur (Hook-Demo).</li>
+    <li><b>AI chat'e en az bir hat ayır:</b> Rakiplerde olmayan farklılaştırıcı; "AI kreatifle gelen chat'i buldu mu" hipotezini de test edersin.</li>
+    <li><b>Kanal-native üret:</b> TikTok'ta işleyeni AppLovin'e kopyalama, formata uyarla (Lancaric).</li>
+    <li><b>Naming convention:</b> ülke_kitle_tema_format_v# (ör. TR_okuyucu_drama_ugc_v2) — analizin yarısı isimlendirmede (Reklam Paneli sekmesi).</li>
+    <li><b>Kazananı CPI değil D7 ROAS belirler:</b> ucuz kreatif kötü kullanıcı getirebilir; kohort olgunlaşınca karar ver.</li>
   </ul>
 </section>
 
