@@ -155,6 +155,7 @@ small.src b{color:var(--accent-ink)}
   <button data-t="kokpit" class="on">Kokpit</button>
   <button data-t="gunluk">Günlük</button>
   <button data-t="reklam">Reklam Paneli</button>
+  <button data-t="analiz">Ülke Analizi</button>
   <button data-t="takvim">Metrik Takvimi</button>
   <button data-t="kpi">KPI Sözlüğü</button>
   <button data-t="deney">Deney Günlüğü</button>
@@ -386,6 +387,93 @@ small.src b{color:var(--accent-ink)}
     <tbody id="ad-geo-tbody"></tbody>
   </table></div>
   <p class="small" style="margin-top:6px">Bu tablo bütçe dağıtım kararının hammaddesi: CPI ucuz ama ROAS düşük ülke tuzaktır; ROAS'ı kohort olgunlaşınca (D7+) tekrar oku. Tema/kitle karşılaştırması (yazar vs okuyucu) için kampanyaları filtreleyip Excel çıktısındaki "Reklamlar" sayfasında pivotla.</p>
+</section>
+
+<!-- ============ ULKE ANALIZI ============ -->
+<section class="tab" id="t-analiz">
+  <h2>Ülke &amp; Funnel Analizi</h2>
+  <p class="note">20 Temmuz 2026 anlık görüntüsü. Kaynak: Google Analytics (Çizgi App / GA4, son 28 gün 22 Haz–19 Tem) gerçek verisi + rakip pazar araştırması. Bu bir fotoğraf — haftalık form doldukça trendi Kokpit'ten izle.</p>
+
+  <div class="infobox">🔑 <b>Tek cümlelik teşhis:</b> Kami'nin gücü Türkiye'de yoğunlaşmış (kullanıcının %88'i, gelirin ~%60'ı) ve <b>asıl sorun edinim değil, tutundurma</b>: yeni kullanıcının yaklaşık %85'i ilk hafta içinde kayboluyor (D7 ≈ %3–4). Yani musluğu açmadan önce kovadaki deliği kapatmak gerekiyor.</div>
+
+  <h3>GA4 ülke tablosu (son 28 gün, gerçek)</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Ülke</th><th class="num">Etkin kullanıcı</th><th class="num">Pay</th><th class="num">Ort. etkileşim</th><th class="num">GA4 gelir payı</th><th>Okuma</th></tr></thead>
+    <tbody>
+      <tr><td><b>Türkiye</b></td><td class="num">71.155</td><td class="num">%88,1</td><td class="num">33 dk 58 sn</td><td class="num">%59,8</td><td><span class="pill good">Çekirdek pazar</span></td></tr>
+      <tr><td><b>Azerbaycan</b></td><td class="num">3.921</td><td class="num">%4,85</td><td class="num">39 dk 10 sn</td><td class="num">~%0</td><td><span class="pill warn">Yüksek ilgi, sıfır gelir</span></td></tr>
+      <tr><td><b>Almanya</b></td><td class="num">1.697</td><td class="num">%2,1</td><td class="num">14 dk 48 sn</td><td class="num">%0,98</td><td><span class="pill acc">Az ama ödeyen</span></td></tr>
+      <tr><td>ABD</td><td class="num">1.086</td><td class="num">%1,34</td><td class="num">7 dk 04 sn</td><td class="num">~%0</td><td><span class="pill bad">Düşük kalite</span></td></tr>
+      <tr><td>Hollanda</td><td class="num">1.055</td><td class="num">%1,31</td><td class="num">14 dk 34 sn</td><td class="num">~%0</td><td><span class="pill bad">Öncelik değil</span></td></tr>
+      <tr><td>Fransa</td><td class="num">880</td><td class="num">%1,09</td><td class="num">15 dk 16 sn</td><td class="num">~%0</td><td><span class="pill bad">Öncelik değil</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Toplam: 80.769 etkin kullanıcı · 30.885 yeni · GA4'ün ölçtüğü gelir ₺11.820 (28g). ⚠️ Bu GA4'e akan gelir; gerçek toplam gelir Adapty'de daha yüksek olabilir — oranları yön göstergesi olarak oku, mutlak rakam olarak değil. Azerbaycan gelirini Adapty'de de doğrula.</p>
+
+  <h3>D1 / D7 tutundurma (GA4 kohort eğrisi, gerçek)</h3>
+  <div class="grid g4">
+    <div class="card stat"><div class="lbl">D1 (tahmini)</div><div class="val" style="color:var(--warn)">~%13–15</div><div class="hint">1. gün dönüş; eğri D0→D2 arası dik</div></div>
+    <div class="card stat"><div class="lbl">D2</div><div class="val">%9,7</div><div class="hint">GA4 tooltip</div></div>
+    <div class="card stat"><div class="lbl">D3</div><div class="val">%7,0</div><div class="hint">GA4 tooltip</div></div>
+    <div class="card stat"><div class="lbl">D7</div><div class="val" style="color:var(--bad)">~%3,5</div><div class="hint">D8 %3,1 ölçüldü</div></div>
+  </div>
+  <p class="small" style="margin-top:8px">Erken tutundurma "E-Kitaplar" emsal medyanının hafif üstünde başlıyor ama hızla altına düşüyor. <b>Kesin D1/D7'yi netleştirmek için:</b> GA4 → Keşifler → "Grup (kohort) keşfi" şablonu → boyut: ülke → böylece D1/D7'yi ülke bazında tam sayı olarak alırsın (eğriden hover yerine). Bu, önümüzdeki işlerden biri.</p>
+
+  <h3>Nerede &amp; neden kullanıcı kaybediyoruz? (funnel teşhisi)</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Aşama</th><th>Şüpheli kayıp nedeni</th><th>Nasıl doğrularız</th><th>Aksiyon</th></tr></thead>
+    <tbody>
+      <tr><td><b>Install → ilk açılış</b></td><td>Onboarding uzun/kafa karıştırıcı; dil/ödeme ekranı erken çıkıyor</td><td>GA4 funnel keşfi: first_open → onboarding_done oranı</td><td>Onboarding'i kısalt; değeri (ilk bölüm) ödeme duvarından önce göster</td></tr>
+      <tr><td><b>İlk açılış → ilk bölüm (aktivasyon)</b></td><td>İçerik keşfi zayıf; kullanıcı ne okuyacağını bulamıyor</td><td>GA4: kaç kullanıcı chapter_read'e ulaşıyor; ilk oturum bölüm sayısı</td><td>Ana ekranda güçlü "ilk bölüm bedava" kancası; kişiselleştirilmiş öneri</td></tr>
+      <tr><td><b>İlk bölüm → 2-3. bölüm</b></td><td><b>En kritik delik burada</b> (D1→D2 %13→%10). Paywall'a çok erken çarpıyor olabilir</td><td>GA4: paywall_view hangi bölümde; token_spend oranı</td><td>Berke ile: ücretsiz bölüm sayısını test et; cliffhanger'ı paywall'dan önce kur</td></tr>
+      <tr><td><b>AI chat / sosyal görünürlüğü</b></td><td>Bağlılık özelliklerini kullanıcı hiç görmüyor (senin "AI kreatif geldi ama chat'i bulamadı" hipotezin)</td><td>GA4: ai_chat_open ve social_post oranı; kullanan vs kullanmayan D7 farkı</td><td>Bu özellikleri onboarding/ana ekranda öne çıkar</td></tr>
+      <tr><td><b>Ödeme (payer dönüşümü)</b></td><td>Fiyat/paket algısı; ödeme yöntemi eksik (özellikle SA'da carrier billing/STC Pay)</td><td>Adapty: paywall→purchase dönüşümü, ülke bazlı</td><td>Ülkeye göre fiyat lokalizasyonu + yerel ödeme yöntemleri</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Yurtdışı reklam çalışması — ülke önceliklendirme</h3>
+  <p class="note">Rakip pazar araştırması + GA4 profilinin birleşimi. Sıra = bütçe tahsis sırası.</p>
+
+  <div class="loop" style="margin-bottom:10px"><h4>1. 🇹🇷 Türkiye — DERİNLEŞ · mesaj: yazar + okuyucu çift</h4>
+    <p>Zaten çekirdek pazar. <b>Fırsat:</b> Wattpad Türkiye'de mahkeme kararıyla erişime kapalı — hem okuyucu hem yazar kitlesi "yeni ev" arıyor. Kami'nin kitap yazma (UGC) özelliği tam buraya oturur.</p>
+    <div class="m"><b>Aksiyon:</b> "Hikayeni Kami'de yaz" + "binlerce roman oku" ikili mesaj; düşük CAC beklenir (lider rakip sahnede yok). Ama önce tutundurma deliğini kapat, yoksa pahalı kullanıcıyı akıtırsın.</div>
+  </div>
+  <div class="loop" style="margin-bottom:10px"><h4>2. 🇸🇦 Suudi Arabistan / Körfez — ERKEN GİR · mesaj: okuyucu / premium</h4>
+    <p>Harcama gücü olağanüstü (mobil oyunda Suudi ARPPU ~$270). Talep devlet destekli (Manga Arabia, Vision 2030). Pazar "ödeme alışkanlığı" fazında (ARPU şimdilik ~$0.73) — yani <b>erken girenin avantajı</b> var, ReelShort/DramaBox henüz yerleşmedi. İndirmede Suudi+Irak bölgenin ~%60'ı.</p>
+    <div class="m"><b>Şart:</b> Arapça yerelleştirme + STC Pay / carrier billing + içerik-demografi testi (Suudi kısa-drama izleyicisi %60+ erkek, intikam/aksiyon; Kami romantik ağırlıklıysa uyum test edilmeli). Yazar mesajı ikincil (Rewayat topluluğu küçük ama var).</div>
+  </div>
+  <div class="loop" style="margin-bottom:10px"><h4>3. 🇩🇪 Almanya — ÜRÜNDEN BESLE · reklam değil, retargeting</h4>
+    <p>GA4 profili nettir: az kullanıcı, kısa süre (14 dk) ama <b>ödeyen</b>. Yeni kullanıcı avlamak pahalı ve rekabetçi (Naver/Kakao yerleşik).</p>
+    <div class="m"><b>Aksiyon:</b> Büyük UA bütçesi AYIRMA. Almanca yerelleştirme + mevcut ödeyenlere retargeting = yüksek marj, düşük risk.</div>
+  </div>
+  <div class="loop" style="margin-bottom:10px"><h4>4. 🇦🇿 Azerbaycan — REKLAM AÇMA · organik bırak</h4>
+    <p>En yüksek etkileşim (39 dk!) ama ~0 gelir ve düşük ödeme gücü. Türkçeye dil yakınlığıyla organik geliyor.</p>
+    <div class="m"><b>Aksiyon:</b> Ücretli UA = yakılan para. Organik bırak; topluluk/yazar kaynağı ve içerik geri bildirimi için değerlendir. Önce Adapty'de gerçekten sıfır gelir mi doğrula.</div>
+  </div>
+  <div class="loop"><h4>5. 🇺🇸🇳🇱🇫🇷 ABD / Hollanda / Fransa — şimdilik PAS</h4>
+    <p>Düşük etkileşim, ~0 gelir. ABD en büyük ödeme pazarı ama en pahalı/rekabetçi ve Kami'nin dil avantajı yok. Erken aşamada bütçe dağıtma.</p>
+  </div>
+
+  <h3>Rakip pazar referansları (kaynaklı)</h3>
+  <ul class="tight">
+    <li><b>Kısa drama segmenti</b> (Kami'ye en yakın monetizasyon): Q1 2025 ~$700M IAP, ABD gelirin %49–70'i. ReelShort Q1 $130M, DramaBox $120M. <span class="tag">Sensor Tower</span></li>
+    <li><b>MENA:</b> 120M+ kullanıcı ama 2024 toplam IAP sadece ~$2.5M, ARPU $0.73, Suudi+Irak indirmenin %60'ı — büyük hacim, para akışı yeni başlıyor. <span class="tag">Antom</span></li>
+    <li><b>Suudi harcama gücü:</b> mobil oyun ARPPU ~$270; Suudi+UAE Körfez oyun harcamasının ~%80'i. <span class="tag">PocketGamer.biz</span></li>
+    <li><b>Okuyucu vs yazar pazarı:</b> Filipinler/Endonezya = yazar; ABD/Suudi/Almanya = okuyucu/ödeyen. Türkiye Wattpad kapandığı için hem okuyucu hem yazar boşluğu. <span class="tag">Wattpad, PublishingPerspectives</span></li>
+    <li><b>Arapça topluluk:</b> Rewayat (yazma/UGC var) + Abjjad (okuma) → Kami'nin çift modeli için zemin uygun. <span class="tag">Google Play, App Store</span></li>
+    <li><b>Pocket FM</b> (token emsali): gelirin %70 ABD, %15 Hindistan. <span class="tag">The Ken</span></li>
+  </ul>
+  <p class="small">⚠️ Rakiplerin ülke bazlı saf IAP geliri çoğunlukla kamuya açık değil; "market sizing" raporları (Almanya webtoon $505M gibi) tüm sektörü sayar, şişkindir — yön göstergesi olarak kullan. Tam ülke×gelir kırılımı için Sensor Tower/AppMagic ücretli abonelik gerekir.</p>
+
+  <h3>Bugünden çıkan yapılacaklar</h3>
+  <ul class="tight">
+    <li><b>Tutundurma önce:</b> Berke ile ücretsiz bölüm sayısı + paywall konumu testi — D1→D2 deliği en acil iş.</li>
+    <li><b>GA4 kohort keşfi kur:</b> ülke bazlı tam D1/D7 (eğriden hover yerine kesin sayı).</li>
+    <li><b>Azerbaycan gelirini Adapty'de doğrula</b> (gerçekten ~0 mı, tracking mi eksik).</li>
+    <li><b>SA hazırlığı:</b> Arapça yerelleştirme + STC Pay/carrier billing + içerik-demografi uyum testi.</li>
+    <li><b>Almanya:</b> Almanca yerelleştirme + ödeyenlere retargeting planı.</li>
+    <li><b>AI chat/sosyal görünürlüğü:</b> kullanan vs kullanmayan D7 farkını GA4'te ölç, sonucu ürün argümanına çevir.</li>
+  </ul>
 </section>
 
 <!-- ============ METRIK TAKVIMI ============ -->
