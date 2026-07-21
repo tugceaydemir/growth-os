@@ -160,6 +160,7 @@ small.src b{color:var(--accent-ink)}
   <button data-t="reklam">Reklam Paneli</button>
   <button data-t="analiz">Ülke Analizi</button>
   <button data-t="kreatif">Kreatif Plan</button>
+  <button data-t="aihikaye">AI Hikayeleri</button>
   <button data-t="nasil">Nereden Bakılır</button>
   <button data-t="takvim">Metrik Takvimi</button>
   <button data-t="kpi">KPI Sözlüğü</button>
@@ -552,6 +553,71 @@ small.src b{color:var(--accent-ink)}
     <li><b>Naming convention:</b> ülke_kitle_tema_format_v# (ör. TR_okuyucu_drama_ugc_v2) — analizin yarısı isimlendirmede (Reklam Paneli sekmesi).</li>
     <li><b>Kazananı CPI değil D7 ROAS belirler:</b> ucuz kreatif kötü kullanıcı getirebilir; kohort olgunlaşınca karar ver.</li>
   </ul>
+</section>
+
+<!-- ============ AI HIKAYELERI ============ -->
+<section class="tab" id="t-aihikaye">
+  <h2>AI Hikayeleri</h2>
+  <p class="note">Senin en hızlı ürün-growth kaldıracın: içerik arzı + paywall yapısı (bunlar kod gerektirmez, senin kontrolünde). Günlük üretimi ve paywall ayarını buradan izle; deney sonuçlarını Deney Günlüğü'ne yaz.</p>
+
+  <h3>Mevcut paywall ayarı — en hızlı deney kaldıracı</h3>
+  <div class="row">
+    <div style="max-width:160px"><label class="f">Toplam bölüm</label><input type="number" id="sc-total" min="1"></div>
+    <div style="max-width:160px"><label class="f">Kilitli bölüm</label><input type="number" id="sc-locked" min="0"></div>
+    <div style="max-width:160px"><label class="f">Bedava bölüm</label><input type="text" id="sc-free" disabled></div>
+    <div><button class="btn" id="sc-save">Ayarı kaydet</button><span class="saved" id="sc-saved" style="margin-left:8px">✓</span></div>
+  </div>
+  <div class="infobox">🔓 <b>Bedava bölüm en hızlı gelir/tutundurma testin.</b> D7 %3,5 (zayıf) → muhtemelen çok erken kilitliyorsun. Bedava bölümü 1-2 artırıp bir sonraki kohortun D1→D2 tutundurması + payer conversion'ına bak. Kilit, güçlü bir cliffhanger'ın hemen ardında olmalı (merak doruktayken). Dev gerekmez — sadece ayar.</div>
+
+  <h3>Günlük üretim takibi</h3>
+  <p class="note">Her gün: kaç hikaye üretildi, dil dağılımı, kaç bölüm. Üretim hızı = içerik arzı = retention yakıtı.</p>
+  <div class="card" style="margin-bottom:16px">
+    <div class="row">
+      <div style="max-width:150px"><label class="f">Tarih</label><input type="date" id="st-date"></div>
+      <div><label class="f">Üretilen hikaye</label><input type="number" id="st-stories" min="0"></div>
+      <div><label class="f">TR</label><input type="number" id="st-tr" min="0"></div>
+      <div><label class="f">EN</label><input type="number" id="st-en" min="0"></div>
+      <div><label class="f">AR</label><input type="number" id="st-ar" min="0"></div>
+      <div><label class="f">Üretilen bölüm</label><input type="number" id="st-ch" min="0"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div style="flex:2"><label class="f">Not / hangi deney</label><input type="text" id="st-note" placeholder="3 romantik TR + 1 gerilim AR; bedava bölüm testi başladı"></div>
+    </div>
+    <div class="savebar"><button class="btn" id="st-save">Günü kaydet</button><span class="saved" id="st-saved">Kaydedildi ✓</span></div>
+  </div>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Tarih</th><th class="num">Hikaye</th><th class="num">TR</th><th class="num">EN</th><th class="num">AR</th><th class="num">Bölüm</th><th>Not</th><th></th></tr></thead>
+    <tbody id="st-tbody"></tbody>
+  </table></div>
+
+  <h3>Takip etmen gereken AI hikaye metrikleri (yazılımcıya event açtır)</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Metrik</th><th>Ne ölçer / neden önemli</th><th>Gerekli event</th></tr></thead>
+    <tbody>
+      <tr><td><b>İlk bölüm tamamlanma</b></td><td>Aktivasyon — okuyucu değeri gördü mü; hikayenin/açılışın gücü</td><td class="tag">chapter_read (index=1)</td></tr>
+      <tr><td><b>Okuma derinliği</b></td><td>İlk oturumda kaç bölüm; nerede kopuyor</td><td class="tag">chapter_read (index)</td></tr>
+      <tr><td><b>Paywall'a çarpma</b></td><td>Kaçıncı bölümde kilit; kaç kişi görüp geçmiyor</td><td class="tag">paywall_view</td></tr>
+      <tr><td><b>Bölüm kilidi açma</b></td><td>Token yakışı; hangi hikaye/bölüm dönüştürüyor</td><td class="tag">token_spend / chapter_unlock</td></tr>
+      <tr><td><b>Hikaye tamamlanma oranı</b></td><td>Son bölüme ulaşan %; hikaye uzunluğu doğru mu</td><td class="tag">chapter_read (son index)</td></tr>
+      <tr><td><b>Hikaye başına gelir</b></td><td>Hangi hikaye/tür/dil para getiriyor</td><td class="tag">token_spend + story_id</td></tr>
+      <tr><td><b>Dil bazlı performans</b></td><td>TR/EN/AR hangi dilde retention+gelir yüksek → içerik yatırımı</td><td class="tag">tüm event'lerde language param</td></tr>
+      <tr><td><b>Tür/tema performansı</b></td><td>Romantik/gerilim/drama × ülke eşleşmesi</td><td class="tag">event'lerde genre param</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Bu event'ler "Kami Event Taksonomisi" dokümanında da var. Kritik parametreler: <b>story_id, chapter_index, is_locked, genre, language</b> — bunlar olmadan hikaye/dil/tür bazlı analiz yapılamaz.</p>
+
+  <h3>Deney fikirleri (etkiye göre sıralı)</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Deney</th><th>Hipotez</th><th>Karar metriği</th></tr></thead>
+    <tbody>
+      <tr><td><b>Bedava bölüm sayısı</b> (10→12/13)</td><td>Çok erken kilitliyoruz; bedavayı artırınca D1→D2 kaybı azalır, tamamlayan okuyucu artar</td><td class="num">Kohort D7 + payer %</td></tr>
+      <tr><td><b>Kilit/cliffhanger konumu</b></td><td>Kilit güçlü cliffhanger'ın hemen ardındaysa dönüşüm artar</td><td class="num">paywall→ödeme %</td></tr>
+      <tr><td><b>İlk bölüm hook'u</b></td><td>İlk sayfa açılışı aktivasyonu belirler</td><td class="num">Aktivasyon %</td></tr>
+      <tr><td><b>Tür × ülke</b></td><td>SA'da aksiyon/gerilim, TR'de romantik daha çok tutar</td><td class="num">Okuma derinliği + tamamlanma</td></tr>
+      <tr><td><b>Yerel AR vs çeviri</b></td><td>Arapça'da yerel orijinal çeviriden çok tutar</td><td class="num">AR retention + gelir</td></tr>
+      <tr><td><b>Toplam bölüm sayısı</b></td><td>Uzun hikaye = daha çok kilitli = daha çok gelir ama tamamlanma düşebilir</td><td class="num">Gelir/hikaye vs tamamlanma</td></tr>
+    </tbody>
+  </table></div>
 </section>
 
 <!-- ============ NEREDEN BAKILIR ============ -->
@@ -1021,6 +1087,7 @@ function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){re
 function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
 var db=load();
 db.weeks=db.weeks||[]; db.days=db.days||[]; db.ads=db.ads||[]; db.exps=db.exps||[]; db.notes=db.notes||[]; db.plan=db.plan||{}; db.skills=db.skills||{};
+db.stories=db.stories||[]; db.storyCfg=db.storyCfg||{total:30,locked:20};
 var CUR = db.currency || "₺";
 
 // ---- tabs
@@ -1175,6 +1242,52 @@ document.getElementById("dy-tbody").addEventListener("click",function(e){
   var b=e.target.closest("button[data-i]"); if(!b)return;
   if(!confirm("Bu günü sil?"))return;
   db.days.splice(+b.dataset.i,1); save(db); renderDays();
+});
+
+// ---- AI hikayeleri
+function renderStoryCfg(){
+  document.getElementById("sc-total").value=db.storyCfg.total;
+  document.getElementById("sc-locked").value=db.storyCfg.locked;
+  document.getElementById("sc-free").value=Math.max(0,num(db.storyCfg.total)-num(db.storyCfg.locked))+" bölüm bedava";
+}
+document.getElementById("sc-total").addEventListener("input",function(){document.getElementById("sc-free").value=Math.max(0,num(this.value)-num(document.getElementById("sc-locked").value))+" bölüm bedava"});
+document.getElementById("sc-locked").addEventListener("input",function(){document.getElementById("sc-free").value=Math.max(0,num(document.getElementById("sc-total").value)-num(this.value))+" bölüm bedava"});
+document.getElementById("sc-save").addEventListener("click",function(){
+  db.storyCfg={total:num(document.getElementById("sc-total").value),locked:num(document.getElementById("sc-locked").value)};
+  save(db); renderStoryCfg(); flash("sc-saved");
+});
+document.getElementById("st-save").addEventListener("click",function(){
+  var d=document.getElementById("st-date").value;
+  if(!d){alert("Tarih seç.");return}
+  var o={date:d,stories:num(document.getElementById("st-stories").value),tr:num(document.getElementById("st-tr").value),
+    en:num(document.getElementById("st-en").value),ar:num(document.getElementById("st-ar").value),
+    ch:num(document.getElementById("st-ch").value),note:document.getElementById("st-note").value.trim()};
+  var i=db.stories.findIndex(function(x){return x.date===d});
+  if(i>=0)db.stories[i]=o; else db.stories.push(o);
+  db.stories.sort(function(a,b){return a.date<b.date?1:-1});
+  save(db); renderStories(); flash("st-saved");
+  ["st-stories","st-tr","st-en","st-ar","st-ch","st-note"].forEach(function(id){document.getElementById(id).value=""});
+});
+function renderStories(){
+  var tb=document.getElementById("st-tbody"); tb.innerHTML="";
+  if(!db.stories.length){tb.innerHTML='<tr><td colspan="8" style="color:var(--muted);font-style:italic">Henüz kayıt yok — bugün kaç hikaye ürettiğini gir.</td></tr>';return}
+  db.stories.forEach(function(s,idx){
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td>"+esc(s.date)+"</td>"+
+      '<td class="num">'+fmt(s.stories,0)+"</td>"+
+      '<td class="num">'+fmt(s.tr,0)+"</td>"+
+      '<td class="num">'+fmt(s.en,0)+"</td>"+
+      '<td class="num">'+fmt(s.ar,0)+"</td>"+
+      '<td class="num">'+fmt(s.ch,0)+"</td>"+
+      "<td>"+esc(s.note)+"</td>"+
+      '<td><button class="btn danger sm" data-i="'+idx+'">Sil</button></td>';
+    tb.appendChild(tr);
+  });
+}
+document.getElementById("st-tbody").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-i]"); if(!b)return;
+  if(!confirm("Bu günü sil?"))return;
+  db.stories.splice(+b.dataset.i,1); save(db); renderStories();
 });
 
 // ---- reklam paneli
@@ -1440,6 +1553,7 @@ document.getElementById("db-export").addEventListener("click",function(){
     return [a.name,a.ch,a.geo,a.theme,a.aud,s[0],num(a.budget),num(a.spend),num(a.imp),num(a.clicks),num(a.inst),
       r2(c.cpi),r2(c.ctr),r2(c.ipm),num(a.rev),r2(c.roas),a.upd||"",a.note||""];
   });
+  var stRows=db.stories.map(function(s){return [s.date,num(s.stories),num(s.tr),num(s.en),num(s.ar),num(s.ch),s.note||""]});
   var exRows=db.exps.map(function(x){var s=STM[x.st]||STM.running;return [x.d,x.t,x.ch,x.geo,s[0],x.hy,x.re,x.de]});
   var ntRows=db.notes.map(function(n){return [n.d,n.t]});
   var xml='<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>'+
@@ -1448,6 +1562,7 @@ document.getElementById("db-export").addEventListener("click",function(){
     xSheet("Segment",["Hafta","Org Install","Org ARPU $","Paid Install","Paid ARPU $","TR Install","TR ARPU $","SA Install","SA ARPU $","DE Install","DE ARPU $","TTFP gün","WAU","Token kul.","Token %","AI kul.","AI %","Sosyal kul.","Sosyal %","Yeni yazar"],segRows)+
     xSheet("Gunluk",["Tarih","Harcama $","Yeni kullanici","CPI $","Gelir $","ROAS %","Yeni abone","Harcanan token","Not"],dyRows)+
     xSheet("Reklamlar",["Ad","Kanal","Ulke","Tema","Kitle","Durum","Butce/g $","Harcama $","Gosterim","Tik","Install","CPI $","CTR %","IPM","Gelir $","ROAS %","Son guncelleme","Not"],adRows)+
+    xSheet("AI Hikaye",["Tarih","Uretilen hikaye","TR","EN","AR","Uretilen bolum","Not"],stRows)+
     xSheet("Deneyler",["Tarih","Başlık","Kanal","Ülke","Durum","Hipotez","Sonuç","Karar"],exRows)+
     xSheet("Notlar",["Tarih","Not"],ntRows)+
     "</Workbook>";
@@ -1480,6 +1595,7 @@ document.getElementById("db-file").addEventListener("change",function(e){
       if(typeof d!=="object"||d===null)throw new Error("format");
       if(!confirm("Yedekteki veriler bu tarayıcıdakilerin ÜZERİNE yazılacak. Devam?"))return;
       d.weeks=d.weeks||[]; d.days=d.days||[]; d.ads=d.ads||[]; d.exps=d.exps||[]; d.notes=d.notes||[]; d.plan=d.plan||{}; d.skills=d.skills||{};
+      d.stories=d.stories||[]; d.storyCfg=d.storyCfg||{total:30,locked:20};
       db=d; save(db); location.reload();
     }catch(err){alert("Bu dosya geçerli bir yedek değil (JSON okunamadı).")}
   };
@@ -1495,7 +1611,7 @@ document.getElementById("db-file").addEventListener("change",function(e){
   if(sel){ sel.value=CUR; sel.addEventListener("change",function(){db.currency=this.value;save(db);location.reload();}); }
 })();
 
-renderFunnel(); renderWeeks(); renderDays(); renderAds(); renderExps(); renderPlan(); renderSkills(); renderNotes();
+renderFunnel(); renderWeeks(); renderDays(); renderAds(); renderStoryCfg(); renderStories(); renderExps(); renderPlan(); renderSkills(); renderNotes();
 })();
 </script>
 
